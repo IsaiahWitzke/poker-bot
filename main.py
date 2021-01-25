@@ -31,17 +31,6 @@ def buy_in(buy_in_amount):
     driver.find_element_by_xpath("/html").send_keys("B")
 
 def wait_for_game_start():
-    # will just loop thru all the buttons in the page (every 2 secs)
-    # until we find one that says "check" or "call" or "fold"
-    while True:
-        buttons = driver.find_elements_by_tag_name("button")
-        for button in buttons:
-            print("cur button text: " + button.text.lower())
-            if(button.text.lower() in ["check", "call", "fold"]):
-                return
-        time.sleep(2)
-
-def wait_for_game_start_v2():
     """
     waits for the game to start.
     
@@ -65,9 +54,8 @@ def handle_new_msgs(msgs):
 
 login(username)
 buy_in(buy_in_amount)
-#wait_for_game_start()
 
-last_msgs_size = wait_for_game_start_v2()
+last_msgs_size = wait_for_game_start()
 while True:
     msgs = driver.find_elements_by_xpath("//div[contains(@id,'chat-')]")
     if(len(msgs) > last_msgs_size):
