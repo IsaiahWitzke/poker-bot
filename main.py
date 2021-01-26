@@ -5,12 +5,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 import time
 import random
-import poker_bot
+from poker_bot import PokerBot
 
 game_id = "86660661064461116193"
 random.seed(time.time)
 username = "Big_Dump_" + str(random.randint(1, 999)) + "_Bot"
 buy_in_amount = 20
+poker_bot = PokerBot(username, buy_in_amount)
 
 driver = webdriver.Firefox()
 driver.get("https://lipoker.io/game/" + game_id)
@@ -50,7 +51,17 @@ def wait_for_game_start():
 
 def handle_new_msgs(msgs):
     for msg in msgs:
-        print(msg.text)
+        msg_text = msg.text
+        if username + ", it's your turn!" in msg_text:
+            turn_actions = poker_bot.play_turn()
+            root = driver.find_element_by_xpath("/html")
+            for action in turn_actions:
+                root.send_keys(action)
+        elif username + ", you've been dealt" in msg_text:
+            pass
+        elif "Dealer dealt" in msg_text:
+            pass
+        print(msg_text)
 
 login(username)
 buy_in(buy_in_amount)
