@@ -1,12 +1,15 @@
 ﻿// PokerBotAi.cpp : Defines the entry point for the application.
 //
 
-#include "PokerBotAi.h"
+#include <iostream>
+#include "NeuralNet.h"
 
 using namespace std;
 
 int main()
 {
-	cout << "Hello CMake." << endl;
+    NeuralNet nn;
+    int test = 0;
+	cout << "Hello world." << endl;
 	return 0;
 }
