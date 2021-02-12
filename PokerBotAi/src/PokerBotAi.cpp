@@ -2,13 +2,14 @@
 //
 
 #include <iostream>
-#include "NeuralNet.h"
+#include "Math/Matrix.h"
+#include <vector>
 
 using namespace std;
 
 int main()
 {
-    NeuralNet nn;
+    Matrix<int> myMatrix(1, 1, 5);
     int test = 0;
 	cout << "Hello world." << endl;
 	return 0;
