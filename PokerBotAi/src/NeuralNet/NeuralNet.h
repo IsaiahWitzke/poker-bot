@@ -1,6 +1,11 @@
 #pragma once
 
+#include "../Math/Matrix.h"
+
 class NeuralNet {
-public:  
+private:
+    
+
+public:
     NeuralNet();
 };
