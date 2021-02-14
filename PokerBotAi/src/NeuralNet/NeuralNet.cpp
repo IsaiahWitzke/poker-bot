@@ -1,5 +1,5 @@
 #include "NeuralNet.h"
-#include "../Math/Sigmoid.h"
+#include "../Math/ScalarFuncs.h"
 #include "../Math/VectorUtils.h"
 #include <iostream>
 
@@ -28,7 +28,7 @@ vector<float> NeuralNet::operator()(const vector<float> in) {
         // next data = weights matrix * input values + biases
         intermediateData = weights[i](intermediateData) + biases[i];
         for (size_t j = 0; j < intermediateData.size(); j++) {
-            intermediateData[j] = sigmoid(intermediateData[j]);
+            intermediateData[j] = relu(intermediateData[j]);
         }
     }
     return intermediateData;

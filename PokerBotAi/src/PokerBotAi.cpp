@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "Math/Matrix.h"
-#include "Math/Sigmoid.h"
+#include "Math/ScalarFuncs.h"
 #include "NeuralNet/NeuralNet.h"
 #include <vector>
 
