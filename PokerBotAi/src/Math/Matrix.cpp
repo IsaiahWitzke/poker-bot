@@ -1,4 +1,5 @@
 #include "Matrix.h"
+#include "VectorUtils.h"
 
 template <typename T>
 Matrix<T>::Matrix(int rows, int cols, T fillValue) : rows(rows), cols(cols) {
@@ -67,9 +68,8 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& mInput) {
 template <typename T>
 vector<T> Matrix<T>::operator*(const vector<T>& v) {
     vector<T> vOut(this->rows, v[0] - v[0]);    // initialize empty vector
-    for(int row = 0; row < this->rows; ++row) {
-        for (size_t i = 0; i < this->cols; ++i)
-        {
+    for (int row = 0; row < this->rows; ++row) {
+        for (size_t i = 0; i < this->cols; ++i) {
             vOut[row] += v[i] * m[row][i];
         }
     }
@@ -78,10 +78,21 @@ vector<T> Matrix<T>::operator*(const vector<T>& v) {
 
 template <typename T>
 vector<T> Matrix<T>::operator()(const vector<T>& v) {
-    return this->operator*(v);  // does this imply an extra copy...????
+    return this->operator*(v);  // does this use an extra copy...????
 }
 
-// see https://stackoverflow.com/questions/8752837/undefined-reference-to-template-class-constructor ...
+template <typename T>
+void Matrix<T>::randomize() {
+    for (size_t i = 0; i < rows; i++) {
+        randomizeVector(m[i]);
+    }
+    
+    // for (auto& row : m) {
+    //     randomizeVector(row);
+    // }
+}
+
+// see https://stackoverflow.com/questions/8752837/undefined-reference-to-template-class-constructor
 
 template class Matrix<int>;
 template class Matrix<float>;
