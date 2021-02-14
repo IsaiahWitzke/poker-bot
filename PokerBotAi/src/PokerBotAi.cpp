@@ -9,11 +9,16 @@ using namespace std;
 
 int main()
 {
-    Matrix<float> m1(3, 5, 0.65);
-    Matrix<float> m2(5, 3, 0.65);
-    Matrix<float> m3 = m1 * m2;
+    Matrix<int> m1(2, 3, 1);
+    m1[0][0] = 1;
+    m1[0][1] = 2;
+    m1[0][2] = 3;
+    m1[1][0] = 4;
+    m1[1][1] = 5;
+    m1[1][2] = 6;
+    vector<int> v1 = {7, 9, 11};
+    vector<int> v2 = m1(v1);
     
-    int test = 0;
 	cout << "Hello world." << endl;
 	return 0;
 }
