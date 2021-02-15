@@ -1,14 +1,32 @@
 #include "ScalarFuncs.h"
-#include <math.h>
+#include <cmath>
 
-float sigmoid(float a) {
+ScalarFuncs::ScalarFuncs(float reluCompressFactor) : reluCompressFactor(reluCompressFactor) {}
+
+ScalarFuncs::~ScalarFuncs() {}
+
+float ScalarFuncs::sigmoid(float a) {
     return 1 / (1 + exp(-1 * a));
 }
 
-float relu(float a) {
-    return fmax(0.0, a / 2);
+float ScalarFuncs::sigmoidPrime(float a) {
+    return (exp(-1 * a) / pow(1 + exp(-1 * a), 2));
 }
 
-float approxSigmoid(float a) {
+float ScalarFuncs::relu(float a) {
+    return fmax(0.0, a * reluCompressFactor);
+}
+
+float ScalarFuncs::reluPrime(float a) {
+    if (a < 0) {
+        return 0;
+    }
+    else {
+        return reluCompressFactor;
+    }
+}
+
+// TODO: implement fully later (if needed)
+float ScalarFuncs::approxSigmoid(float a) {
     return 0.5;
 }

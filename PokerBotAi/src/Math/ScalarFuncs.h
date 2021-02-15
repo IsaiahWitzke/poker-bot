@@ -1,7 +1,20 @@
 #pragma once
 
-float sigmoid(float a);
+class ScalarFuncs
+{
+private:
+    const float reluCompressFactor;
+public:
+    ScalarFuncs(float reluCompressFactor = 1.0);
+    ~ScalarFuncs();
 
-float relu(float a);
+    float sigmoid(float a);
+    float sigmoidPrime(float a);
 
-float approxSigmoid(float a);   // if needed, implement me (will be faster)
+    float relu(float a);
+    float reluPrime(float a);
+
+    float approxSigmoid(float a);   // if needed, implement me (for speed)
+    float approxSigmoidPrime(float a);
+
+};
