@@ -60,6 +60,25 @@ void NeuralNet::calcIntermediateValues(const vector<float>& in, vector<vector<fl
     }
 }
 
+calcNablaCWRTa
+
+vector<Matrix<float>> NeuralNet::calcWeightsGradient(const vector<vector<float>>& a, const vector<vector<float>>& z, const int requestedOutputIdx) {
+    const int L = l - 1;
+
+    vector<Matrix<float>> dcWRTdw = weights;
+
+    // start at front (output layer) and propogate backwards
+    for (size_t layer = L; layer >= 0; layer--) {
+        
+    }
+    
+}
+
+vector<vector<float>> NeuralNet::calcNegBiasesGradient(const vector<vector<float>>& a, const vector<vector<float>>& z, const int requestedOutputIdx) {
+    
+}
+
+
 void NeuralNet::train(const vector<vector<float>>& trainingSet, const vector<int>& expectedOutNeuron) {
     // for (size_t i = 0; i < trainingSet.size(); i++) {
     //     // output of all layers

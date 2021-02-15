@@ -8,13 +8,16 @@ public:
     ScalarFuncs(float reluCompressFactor = 1.0);
     ~ScalarFuncs();
 
-    float sigmoid(float a);
-    float sigmoidPrime(float a);
+    float sigmoid(float z);
+    
 
-    float relu(float a);
-    float reluPrime(float a);
+    float relu(float z);
+    
+    // the following are implementations of derivatives that can be found in here: https://www.youtube.com/watch?v=tIeHLnjs5U8
 
-    float approxSigmoid(float a);   // if needed, implement me (for speed)
-    float approxSigmoidPrime(float a);
-
+    float dzWRTda(float w);
+    float dzWRTdb();
+    float daWRTdz_sigmoid(float z);
+    float daWRTdz_relu(float z);
+    float dcWRTda(float a, float y);
 };

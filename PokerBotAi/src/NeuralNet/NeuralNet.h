@@ -53,9 +53,9 @@ public:
      */
     void calcIntermediateValues(const vector<float>& in, vector<vector<float>>& a, vector<vector<float>>& z);
 
-    vector<Matrix<float>> calcNegWeightsGradient(const vector<vector<float>>& a, const vector<vector<float>>& z);
+    vector<Matrix<float>> calcWeightsGradient(const vector<vector<float>>& a, const vector<vector<float>>& z, const int requestedOutputIdx);
 
-    vector<vector<float>> calcNegBiasesGradient(const vector<vector<float>>& a, const vector<vector<float>>& z);
+    vector<vector<float>> calcBiasesGradient(const vector<vector<float>>& a, const vector<vector<float>>& z);
 
     /**
      * @brief train the network on a set of data

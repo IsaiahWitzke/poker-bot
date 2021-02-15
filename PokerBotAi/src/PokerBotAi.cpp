@@ -17,7 +17,7 @@ int main()
 
     vector<vector<float>> a = {{}};
     vector<vector<float>> z = {{}};
-    vector<float> in = {1.0, 2.0, 3.0, 4.0};
+    vector<float> in = {0.1, 0.2, 0.3, 0.4};
 
     nn.calcIntermediateValues(in, a, z);
     vector<float> res = nn(in);
