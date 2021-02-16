@@ -21,7 +21,10 @@ int main()
 
     nn.calcIntermediateValues(in, a, z);
 
-    vector<vector<float>> activationsGradient = nn.calcNeuronActivationsGradient(a, z, 1);
+    for(int i = 0; i < 20; i++) {
+        nn.makeTrainingStep(a, z, 1);
+        nn.calcIntermediateValues(in, a, z);
+    }
 
     cout << "Hello world." << endl;
     return 0;

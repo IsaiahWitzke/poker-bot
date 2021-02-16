@@ -28,7 +28,7 @@ vector<float> NeuralNet::operator()(const vector<float>& in) {
         // next data = weights matrix * input values + biases
         intermediateData = weights[i](intermediateData) + biases[i];
         for (size_t j = 0; j < intermediateData.size(); j++) {
-            intermediateData[j] = scalarFuncs.relu(intermediateData[j]);
+            intermediateData[j] = scalarFuncs.sigmoid(intermediateData[j]);
         }
     }
     return intermediateData;
@@ -59,7 +59,7 @@ void NeuralNet::calcIntermediateValues(
         // for each neuron...
         for (size_t j = 0; j < preSigmoid.size(); j++) {
             // apply the sigmoid
-            postSigmoid[j] = scalarFuncs.relu(preSigmoid[j]);
+            postSigmoid[j] = scalarFuncs.sigmoid(preSigmoid[j]);
         }
         a.push_back(postSigmoid);
     }
@@ -92,7 +92,7 @@ vector<vector<float>> NeuralNet::calcNeuronActivationsGradient(
                     // start with: dz(L+1)/da(L)
                     float dcWRTdaCurNeuron = scalarFuncs.dzWRTda_previous(weights[layer][nextLayerNeuron][neuron]);
                     // multiply: da(L+1)/dz(L+1)
-                    dcWRTdaCurNeuron *= scalarFuncs.daWRTdz_relu(z[layer + 1][nextLayerNeuron]);
+                    dcWRTdaCurNeuron *= scalarFuncs.daWRTdz_sigmoid(z[layer + 1][nextLayerNeuron]);
                     // multiply: dc(L+1)/da(L+1)
                     dcWRTdaCurNeuron *= dcWRTda[layer + 1][nextLayerNeuron];  // starts to get recursive here!
 
@@ -107,25 +107,34 @@ vector<vector<float>> NeuralNet::calcNeuronActivationsGradient(
 vector<Matrix<float>> NeuralNet::calcWeightsGradient(
     const vector<vector<float>>& a,
     const vector<vector<float>>& z,
-    const vector<vector<float>>& dcWRTda,
-    const int requestedOutputIdx
+    const vector<vector<float>>& dcWRTda
 ) {
     const int L = l - 1;
 
-    vector<Matrix<float>> dcWRTdw = weights;
+    vector<Matrix<float>> dcWRTdw = weights; // initializing the future-output as the weights because a will have the corect dimensions
+
+    // note: because of implementaiton weights[L - 1] in this implementation = w^(L) in the 3B1B videos
 
     // start at front (output layer) and propogate backwards
-    for (size_t layer = L; layer >= 0; layer--) {
-
+    for (int layer = L; layer >= 1; layer--) {
+        for (int i = 0; i < weights[layer - 1].cols; i++) {          // i = index of previous layer's neurons
+            for (int j = 0; j < weights[layer - 1].rows; j++) {      // j = index of cur layer's neurons
+                // start: neuron activation derivative (dc/da) of cur layer
+                dcWRTdw[layer - 1][j][i] = dcWRTda[layer][j];
+                // multiply: da/dz for cur layer
+                dcWRTdw[layer - 1][j][i] *= scalarFuncs.daWRTdz_sigmoid(z[layer][j]);
+                // multiply: dz/dw
+                dcWRTdw[layer - 1][j][i] *= scalarFuncs.dzWRTdw(a[layer][j]);
+            }
+        }
     }
-
+    return dcWRTdw;
 }
 
 vector<vector<float>> NeuralNet::calcBiasesGradient(
     const vector<vector<float>>& a,
     const vector<vector<float>>& z,
-    const vector<vector<float>>& dcWRTda,
-    const int requestedOutputIdx
+    const vector<vector<float>>& dcWRTda
 ) {
 
 }
@@ -135,6 +144,18 @@ void NeuralNet::makeTrainingStep(
     const vector<vector<float>>& z,
     const int requestedOutputIdx
 ) {
+    vector<vector<float>> dcWRTda = calcNeuronActivationsGradient(a, z, requestedOutputIdx);
+    vector<Matrix<float>> weightsGradient = calcWeightsGradient(a, z, dcWRTda);
+
+    for (size_t layer = 0; layer < weights.size(); layer++) {
+        for (size_t i = 0; i < weights[layer].rows; i++) {              // rows
+            for (size_t j = 0; j < weights[layer].cols; j++) {    // cols
+                // nudge in direction of negative gradient:
+                float nudge = weightsGradient[layer][i][j];
+                this->weights[layer][i][j] -= nudge;
+            }
+        }
+    }
 
 }
 

@@ -58,15 +58,13 @@ public:
     vector<Matrix<float>> calcWeightsGradient(
         const vector<vector<float>>& a,
         const vector<vector<float>>& z,
-        const vector<vector<float>>& dcWRTda,
-        const int requestedOutputIdx
+        const vector<vector<float>>& dcWRTda
     );
 
     vector<vector<float>> calcBiasesGradient(
         const vector<vector<float>>& a,
         const vector<vector<float>>& z,
-        const vector<vector<float>>& dcWRTda,
-        const int requestedOutputIdx
+        const vector<vector<float>>& dcWRTda
     );
 
     void makeTrainingStep(
