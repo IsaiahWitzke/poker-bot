@@ -136,7 +136,22 @@ vector<vector<float>> NeuralNet::calcBiasesGradient(
     const vector<vector<float>>& z,
     const vector<vector<float>>& dcWRTda
 ) {
+    const int L = l - 1;
 
+    vector<vector<float>> dcWRTdb = biases; // initializing the future-output as the biases because will have the corect dimensions
+
+    // start at front (output layer) and propogate backwards
+    for (int layer = L; layer >= 1; layer--) {
+        for (int neuron = 0; neuron < biases[layer - 1].size(); neuron++) {
+            // start: neuron activation derivative (dc/da) of cur layer
+            dcWRTdb[layer - 1][neuron] = dcWRTda[layer][neuron];
+            // multiply: da/dz for cur layer
+            dcWRTdb[layer - 1][neuron] *= scalarFuncs.daWRTdz_sigmoid(z[layer][neuron]);
+            // multiply: dz/db (this line can be removed since dz/db = 1)
+            dcWRTdb[layer - 1][neuron] *= scalarFuncs.dzWRTdb();
+        }
+    }
+    return dcWRTdb;
 }
 
 void NeuralNet::makeTrainingStep(
@@ -146,17 +161,25 @@ void NeuralNet::makeTrainingStep(
 ) {
     vector<vector<float>> dcWRTda = calcNeuronActivationsGradient(a, z, requestedOutputIdx);
     vector<Matrix<float>> weightsGradient = calcWeightsGradient(a, z, dcWRTda);
+    vector<vector<float>> biasesGradient = calcBiasesGradient(a, z, dcWRTda);
 
+    // nudge weights
     for (size_t layer = 0; layer < weights.size(); layer++) {
-        for (size_t i = 0; i < weights[layer].rows; i++) {              // rows
+        for (size_t i = 0; i < weights[layer].rows; i++) {        // rows
             for (size_t j = 0; j < weights[layer].cols; j++) {    // cols
                 // nudge in direction of negative gradient:
-                float nudge = weightsGradient[layer][i][j];
-                this->weights[layer][i][j] -= nudge;
+                this->weights[layer][i][j] -= weightsGradient[layer][i][j];
             }
         }
     }
 
+    // nudge biases
+    for (size_t layer = 0; layer < biases.size(); layer++) {
+        for (size_t neuron = 0; neuron < biases[layer].size(); neuron++) {
+            // nudge in direction of negative gradient:
+            biases[layer][neuron] -= biasesGradient[layer][neuron];
+        }
+    }
 }
 
 
