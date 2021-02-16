@@ -163,6 +163,18 @@ void NeuralNet::makeTrainingStep(
     vector<Matrix<float>> weightsGradient = calcWeightsGradient(a, z, dcWRTda);
     vector<vector<float>> biasesGradient = calcBiasesGradient(a, z, dcWRTda);
 
+    // print out the cost function (for interest's sake)
+    float cost = 0;
+    for (size_t i = 0; i < a[l - 1].size(); i++) {
+        float curCost = a[l - 1][i];
+        if(i == requestedOutputIdx) {
+            curCost -= 1;
+        }
+        cost += curCost * curCost;
+    }
+
+    cout << cost << endl;
+
     // nudge weights
     for (size_t layer = 0; layer < weights.size(); layer++) {
         for (size_t i = 0; i < weights[layer].rows; i++) {        // rows
