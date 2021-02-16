@@ -46,20 +46,38 @@ public:
     /**
      * @brief given the input layer activation layer (in), sets a to the activations of every neuron in the network,
      * and z to the pre-sigmoid value of every neuron in the network
-     * 
+     *
      * @param in
      * @param a
      * @param z
      */
     void calcIntermediateValues(const vector<float>& in, vector<vector<float>>& a, vector<vector<float>>& z);
 
-    vector<Matrix<float>> calcWeightsGradient(const vector<vector<float>>& a, const vector<vector<float>>& z, const int requestedOutputIdx);
+    vector<vector<float>> calcNeuronActivationsGradient(const vector<vector<float>>& a, const vector<vector<float>>& z, const int requestedOutputIdx);
 
-    vector<vector<float>> calcBiasesGradient(const vector<vector<float>>& a, const vector<vector<float>>& z);
+    vector<Matrix<float>> calcWeightsGradient(
+        const vector<vector<float>>& a,
+        const vector<vector<float>>& z,
+        const vector<vector<float>>& dcWRTda,
+        const int requestedOutputIdx
+    );
+
+    vector<vector<float>> calcBiasesGradient(
+        const vector<vector<float>>& a,
+        const vector<vector<float>>& z,
+        const vector<vector<float>>& dcWRTda,
+        const int requestedOutputIdx
+    );
+
+    void makeTrainingStep(
+        const vector<vector<float>>& a,
+        const vector<vector<float>>& z,
+        const int requestedOutputIdx
+    );
 
     /**
      * @brief train the network on a set of data
-     * 
+     *
      * @param trainingInputSet the set of input layer values
      * @param expectedOutNeuron expectedOutNeuron[i] is the index of the
      * output layer neuron whose value to be 1.00, with all others to be 0.00

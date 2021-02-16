@@ -20,12 +20,16 @@ float ScalarFuncs::relu(float z) {
 //
 // *****
 
-float ScalarFuncs::dzWRTda(float w) {
-    return w;
+float ScalarFuncs::dzWRTdw(float a) {
+    return a;
 }
 
 float ScalarFuncs::dzWRTdb() {
     return 1;
+}
+
+float ScalarFuncs::dzWRTda_previous(float w) {
+    return w;
 }
 
 float ScalarFuncs::daWRTdz_sigmoid(float z) {

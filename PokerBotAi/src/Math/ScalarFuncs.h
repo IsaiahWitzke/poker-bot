@@ -15,8 +15,9 @@ public:
     
     // the following are implementations of derivatives that can be found in here: https://www.youtube.com/watch?v=tIeHLnjs5U8
 
-    float dzWRTda(float w);
+    float dzWRTdw(float a);
     float dzWRTdb();
+    float dzWRTda_previous(float w);
     float daWRTdz_sigmoid(float z);
     float daWRTdz_relu(float z);
     float dcWRTda(float a, float y);

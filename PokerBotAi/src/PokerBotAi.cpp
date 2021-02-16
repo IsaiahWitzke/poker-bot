@@ -20,7 +20,8 @@ int main()
     vector<float> in = {0.1, 0.2, 0.3, 0.4};
 
     nn.calcIntermediateValues(in, a, z);
-    vector<float> res = nn(in);
+
+    vector<vector<float>> activationsGradient = nn.calcNeuronActivationsGradient(a, z, 1);
 
     cout << "Hello world." << endl;
     return 0;
