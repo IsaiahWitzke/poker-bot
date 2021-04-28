@@ -7,14 +7,27 @@
 
 using namespace std;
 
+struct IntermediateData {
+    vector<vector<float>> neuronActivations;
+    vector<vector<float>> neuronActivationsPreSigmoid;
+    vector<vector<float>> costsWRTActivationsGradient;
+    vector<Matrix<float>> costsWRTWeightsGradient;
+    vector<vector<float>> costsWRTBiasesGradient;
+};
+
+
 class NeuralNet {
 private:
     vector<Matrix<float>> weights;
     vector<vector<float>> biases;
 
-    const int l;  // number of layers in the network
+    // These are updated and changed thoughout training
+    IntermediateData data;
 
-    ScalarFuncs scalarFuncs;
+    vector<IntermediateData> intermediateDataBatch;
+
+    const int l;  // number of layers in the network
+    const float scalarFuncsCompressFactor;  // if using relu, then this is the compression on it
 public:
 
     /**
@@ -37,41 +50,31 @@ public:
     /**
      * @brief to apply the neural net onto an input. Returns the output activations of the final layer of neurons
      *
-     * @param in
+     * @param in the input layer's activations
      * @return vector<float>
      */
     vector<float> operator()(const vector<float>& in);
 
 
     /**
-     * @brief given the input layer activation layer (in), sets a to the activations of every neuron in the network,
-     * and z to the pre-sigmoid value of every neuron in the network
+     * @brief given the input layer activation layer (in), updates the activations of every neuron in the network,
+     * and the pre-sigmoid value of every neuron in the network
      *
-     * @param in
-     * @param a
-     * @param z
+     * @param in the input layer's activations
      */
-    void calcIntermediateValues(const vector<float>& in, vector<vector<float>>& a, vector<vector<float>>& z);
+    void calcIntermediateValues(const vector<float>& in);
 
-    vector<vector<float>> calcNeuronActivationsGradient(const vector<vector<float>>& a, const vector<vector<float>>& z, const int requestedOutputIdx);
+    void calcCostsWRTActivationsGradient(const int requestedOutputIdx);
 
-    vector<Matrix<float>> calcWeightsGradient(
-        const vector<vector<float>>& a,
-        const vector<vector<float>>& z,
-        const vector<vector<float>>& dcWRTda
-    );
+    void calcCostsWRTWeightsGradient();
 
-    vector<vector<float>> calcBiasesGradient(
-        const vector<vector<float>>& a,
-        const vector<vector<float>>& z,
-        const vector<vector<float>>& dcWRTda
-    );
+    void calcCostsWRTBiasesGradient();
 
-    void makeTrainingStep(
-        const vector<vector<float>>& a,
-        const vector<vector<float>>& z,
-        const int requestedOutputIdx
-    );
+    void calcIntermediateData(const vector<float>& in, const int requestedOutputIdx);
+
+    void calcIntermediateBatchData(const vector<vector<float>>& inBatch, const vector<int> requestedOutputIdxBatch);
+
+    void makeTrainingStep(const int requestedOutputIdx);
 
     /**
      * @brief train the network on a set of data
@@ -80,6 +83,19 @@ public:
      * @param expectedOutNeuron expectedOutNeuron[i] is the index of the
      * output layer neuron whose value to be 1.00, with all others to be 0.00
      * for trainingInputSet[i]
+     * @param batchSize the size of each training batch
      */
-    void train(const vector<vector<float>>& trainingSet, const vector<int>& expectedOutNeuron);
+    void train(const vector<vector<float>>& trainingSet, const vector<int>& expectedOutNeuron, const int batchSize = 10);
+
+
+    void writeToFile(const string& pathToFile);
+
+    /**
+     * @brief Outputs the data in the neural network in a json format that can be parsed back in again for future use
+     *
+     * @param out output stream to file
+     * @param nn neural network
+     * @return ostream&
+     */
+    friend ostream& operator << (ostream& out, const NeuralNet& nn);
 };

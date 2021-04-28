@@ -15,6 +15,14 @@ Matrix<T>::Matrix(vector<vector<T>> m) : rows(m.size()), cols(m[0].size()) {
 }
 
 template <typename T>
+Matrix<T>& Matrix<T>::operator=(const Matrix<T> matrix) {
+    m = matrix.m;
+    rows = matrix.rows;
+    cols = matrix.cols;
+    return *this;
+}
+
+template <typename T>
 Matrix<T>::~Matrix() {}
 
 template <typename T>
@@ -86,7 +94,7 @@ void Matrix<T>::randomize() {
     for (size_t i = 0; i < rows; i++) {
         randomizeVector(m[i]);
     }
-    
+
     // for (auto& row : m) {
     //     randomizeVector(row);
     // }

@@ -13,11 +13,12 @@ private:
     vector<vector<T>> m;
 
 public:
-    const int rows;
-    const int cols;
+    int rows;
+    int cols;
 
     Matrix(int rows, int cols, T fillValue);
-    Matrix(vector<vector<T>> m);    // TODO: make copy assignment constructor
+    Matrix(vector<vector<T>> m);
+    Matrix<T>& operator=(const Matrix<T> matrix);
     ~Matrix();
 
     T getElem(size_t row, size_t col) const;

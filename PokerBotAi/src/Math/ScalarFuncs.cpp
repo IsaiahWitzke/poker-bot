@@ -1,15 +1,12 @@
 #include "ScalarFuncs.h"
 #include <cmath>
 
-ScalarFuncs::ScalarFuncs(float reluCompressFactor) : reluCompressFactor(reluCompressFactor) {}
 
-ScalarFuncs::~ScalarFuncs() {}
-
-float ScalarFuncs::sigmoid(float z) {
+float sigmoid(float z) {
     return 1 / (1 + exp(-1 * z));
 }
 
-float ScalarFuncs::relu(float z) {
+float relu(float z, float reluCompressFactor) {
     return fmax(0.0, z * reluCompressFactor);
 }
 
@@ -20,32 +17,32 @@ float ScalarFuncs::relu(float z) {
 //
 // *****
 
-float ScalarFuncs::dzWRTdw(float a) {
+float dzWRTdw(float a) {
     return a;
 }
 
-float ScalarFuncs::dzWRTdb() {
+float dzWRTdb() {
     return 1;
 }
 
-float ScalarFuncs::dzWRTda_previous(float w) {
+float dzWRTda_previous(float w) {
     return w;
 }
 
-float ScalarFuncs::daWRTdz_sigmoid(float z) {
+float daWRTdz_sigmoid(float z) {
     return (exp(-1 * z) / pow(1 + exp(-1 * z), 2));
 }
 
-float ScalarFuncs::daWRTdz_relu(float z) {
+float daWRTdz_relu(float z, float reluCompressfactor) {
     if (z < 0) {
         return 0;
     }
     else {
-        return reluCompressFactor;
+        return reluCompressfactor;
     }
 }
 
 
-float ScalarFuncs::dcWRTda(float a, float y) {
+float dcWRTda(float a, float y) {
     return (2 * (a - y));   // I think?
 }

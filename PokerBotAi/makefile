@@ -3,7 +3,7 @@ TARGET_EXEC ?= pokerbotai.exe
 BUILD_DIR ?= ./build
 SRC_DIRS ?= ./src
 
-# TODO: this gives err on windows... but the make still seems to work so, we chilling? (for now)
+# TODO: this gives err on windows... but the make still seems to work so, we're okay i think? (for now)
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
