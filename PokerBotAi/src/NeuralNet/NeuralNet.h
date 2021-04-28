@@ -26,8 +26,8 @@ private:
 
     vector<IntermediateData> intermediateDataBatch;
 
-    const int l;  // number of layers in the network
-    const float scalarFuncsCompressFactor;  // if using relu, then this is the compression on it
+    const int layers;
+    const float scalarFuncsCompressFactor;  // if using relu, then this is the "compression" on it
 public:
 
     /**
@@ -55,6 +55,7 @@ public:
      */
     vector<float> operator()(const vector<float>& in);
 
+    int getNeuronsInLayer(const int layer) const;
 
     /**
      * @brief given the input layer activation layer (in), updates the activations of every neuron in the network,

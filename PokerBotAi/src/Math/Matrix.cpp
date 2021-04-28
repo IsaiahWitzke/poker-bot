@@ -2,7 +2,7 @@
 #include "VectorUtils.h"
 
 template <typename T>
-Matrix<T>::Matrix(int rows, int cols, T fillValue) : rows(rows), cols(cols) {
+Matrix<T>::Matrix(int rows, int cols, T fillValue) : numRows(rows), numCols(cols) {
     for (int i = 0; i < rows; ++i) {
         vector<T> row(cols, fillValue);
         this->m.push_back(row);
@@ -10,15 +10,15 @@ Matrix<T>::Matrix(int rows, int cols, T fillValue) : rows(rows), cols(cols) {
 }
 
 template <typename T>
-Matrix<T>::Matrix(vector<vector<T>> m) : rows(m.size()), cols(m[0].size()) {
+Matrix<T>::Matrix(vector<vector<T>> m) : numRows(m.size()), numCols(m[0].size()) {
     this->m = m;
 }
 
 template <typename T>
 Matrix<T>& Matrix<T>::operator=(const Matrix<T> matrix) {
     m = matrix.m;
-    rows = matrix.rows;
-    cols = matrix.cols;
+    numRows = matrix.numRows;
+    numCols = matrix.numCols;
     return *this;
 }
 
@@ -55,14 +55,14 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& mInput) {
     // TODO: could do some checking of rows/columns here
 
     // if this is ixb and input is bxj, then output is ixj
-    Matrix<T> mOut(this->rows, mInput.cols, m[0][0]);
+    Matrix<T> mOut(this->numRows, mInput.numCols, m[0][0]);
 
-    for (size_t mOutRowIdx = 0; mOutRowIdx < this->rows; ++mOutRowIdx) {
-        for (size_t mOutColIdx = 0; mOutColIdx < mInput.cols; ++mOutColIdx) {
+    for (size_t mOutRowIdx = 0; mOutRowIdx < this->numRows; ++mOutRowIdx) {
+        for (size_t mOutColIdx = 0; mOutColIdx < mInput.numCols; ++mOutColIdx) {
             T mOutEntry = m[0][0] - m[0][0]; // start at 0 of whatever type that the input matrix is
 
             // mOutEntry is the dot product of the mOutRowIdx row of this->m and the mOutColIdx col of mInput
-            for (size_t i = 0; i < this->cols; ++i) {
+            for (size_t i = 0; i < this->numCols; ++i) {
                 mOutEntry += this->m[mOutRowIdx][i] * mInput.getElem(i, mOutColIdx);
             }
 
@@ -75,9 +75,9 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& mInput) {
 
 template <typename T>
 vector<T> Matrix<T>::operator*(const vector<T>& v) {
-    vector<T> vOut(this->rows, v[0] - v[0]);    // initialize empty vector
-    for (int row = 0; row < this->rows; ++row) {
-        for (size_t i = 0; i < this->cols; ++i) {
+    vector<T> vOut(this->numRows, v[0] - v[0]);    // initialize empty vector
+    for (int row = 0; row < this->numRows; ++row) {
+        for (size_t i = 0; i < this->numCols; ++i) {
             vOut[row] += v[i] * m[row][i];
         }
     }
@@ -91,7 +91,7 @@ vector<T> Matrix<T>::operator()(const vector<T>& v) {
 
 template <typename T>
 void Matrix<T>::randomize() {
-    for (size_t i = 0; i < rows; i++) {
+    for (size_t i = 0; i < numRows; i++) {
         randomizeVector(m[i]);
     }
 

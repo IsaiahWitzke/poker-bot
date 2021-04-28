@@ -4,14 +4,14 @@
 #include <iostream>
 
 // TODO: implement me!
-NeuralNet::NeuralNet(istream in, float scalarFuncsCompressFactor) : l(-1), scalarFuncsCompressFactor(scalarFuncsCompressFactor) {}
+NeuralNet::NeuralNet(istream in, float scalarFuncsCompressFactor) : layers(-1), scalarFuncsCompressFactor(scalarFuncsCompressFactor) {}
 
 NeuralNet::NeuralNet(vector<int> neuronsInLayer, float scalarFuncsCompressFactor) :
-    l(neuronsInLayer.size()), scalarFuncsCompressFactor(scalarFuncsCompressFactor) {
+    layers(neuronsInLayer.size()), scalarFuncsCompressFactor(scalarFuncsCompressFactor) {
     // TODO: param checking
 
     // initialize all weights and biases to random values
-    for (size_t i = 0; i < l - 1; i++) {
+    for (size_t i = 0; i < layers - 1; i++) {
         Matrix<float> weights(neuronsInLayer[i + 1], neuronsInLayer[i], 0.0);     // each row reps all the links from input neuron to next neurons
         weights.randomize();
         this->weights.push_back(weights);
@@ -25,7 +25,7 @@ vector<float> NeuralNet::operator()(const vector<float>& in) {
     // NOTE: we dont apply biases or sigmoid to input layer
 
     vector<float> intermediateData = in;
-    for (size_t i = 0; i < l - 1; i++) {
+    for (size_t i = 0; i < layers - 1; i++) {
         // next data = weights matrix * input values + biases
         intermediateData = weights[i](intermediateData) + biases[i];
         for (size_t j = 0; j < intermediateData.size(); j++) {
@@ -33,6 +33,15 @@ vector<float> NeuralNet::operator()(const vector<float>& in) {
         }
     }
     return intermediateData;
+}
+
+int NeuralNet::getNeuronsInLayer(const int layer) const {
+    if(layer == layers - 1) {
+        return weights[layer - 1].numRows;
+    } else {
+        return weights[layer].numCols;
+    }
+    
 }
 
 
@@ -46,7 +55,7 @@ void NeuralNet::calcIntermediateValues(const vector<float>& in) {
     vector<float> postSigmoid = in;
 
     // for each layer...
-    for (size_t i = 0; i < l - 1; i++) {
+    for (size_t i = 0; i < layers - 1; i++) {
         // next data = (weights matrix) * (input values vector) + (biases vector)
         preSigmoid = (weights[i] * postSigmoid) + biases[i];
         data.neuronActivationsPreSigmoid.push_back(preSigmoid);
@@ -66,7 +75,7 @@ void NeuralNet::calcIntermediateValues(const vector<float>& in) {
 // to calc delta cost wrt the activations of every neuron in the network
 // TODO: generalize this. "requestedOutputIdx" should be a vector of requested output values
 void NeuralNet::calcCostsWRTActivationsGradient(const int requestedOutputIdx) {
-    const int L = l - 1;
+    const int L = layers - 1;
 
     data.costsWRTActivationsGradient = data.neuronActivations; // initializing the future-output as the intermediate activations because a will have the corect dimensions
 
@@ -98,15 +107,15 @@ void NeuralNet::calcCostsWRTActivationsGradient(const int requestedOutputIdx) {
 }
 
 void NeuralNet::calcCostsWRTWeightsGradient() {
-    const int L = l - 1;
+    const int L = layers - 1;
     data.costsWRTWeightsGradient = weights; // initializing the future-output as the weights because a will have the corect dimensions
 
     // note: because of implementaiton weights[L - 1] in this implementation = w^(L) in the 3B1B videos
 
     // start at front (output layer) and propogate backwards
     for (int layer = L; layer >= 1; layer--) {
-        for (int i = 0; i < weights[layer - 1].cols; i++) {          // i = index of previous layer's neurons
-            for (int j = 0; j < weights[layer - 1].rows; j++) {      // j = index of cur layer's neurons
+        for (int i = 0; i < weights[layer - 1].numCols; i++) {          // i = index of previous layer's neurons
+            for (int j = 0; j < weights[layer - 1].numRows; j++) {      // j = index of cur layer's neurons
                 // start: neuron activation derivative (dc/da) of cur layer
                 data.costsWRTWeightsGradient[layer - 1][j][i] = data.costsWRTActivationsGradient[layer][j];
                 // multiply: da/dz for cur layer
@@ -119,7 +128,7 @@ void NeuralNet::calcCostsWRTWeightsGradient() {
 }
 
 void NeuralNet::calcCostsWRTBiasesGradient() {
-    const int L = l - 1;
+    const int L = layers - 1;
 
     data.costsWRTBiasesGradient = biases; // initializing the future-output as the biases because will have the corect dimensions
 
@@ -145,8 +154,8 @@ void NeuralNet::makeTrainingStep(
 
     // print out the cost function (for interest's sake)
     float cost = 0;
-    for (size_t i = 0; i < data.neuronActivations[l - 1].size(); i++) {
-        float curCost = data.neuronActivations[l - 1][i];
+    for (size_t i = 0; i < data.neuronActivations[layers - 1].size(); i++) {
+        float curCost = data.neuronActivations[layers - 1][i];
         if (i == requestedOutputIdx) {
             curCost -= 1;
         }
@@ -156,8 +165,8 @@ void NeuralNet::makeTrainingStep(
 
     // nudge weights
     for (size_t layer = 0; layer < weights.size(); layer++) {
-        for (size_t i = 0; i < weights[layer].rows; i++) {        // rows
-            for (size_t j = 0; j < weights[layer].cols; j++) {    // cols
+        for (size_t i = 0; i < weights[layer].numRows; i++) {        // rows
+            for (size_t j = 0; j < weights[layer].numCols; j++) {    // cols
                 // nudge in direction of negative gradient:
                 this->weights[layer][i][j] -= data.costsWRTWeightsGradient[layer][i][j];
             }
@@ -211,32 +220,50 @@ void NeuralNet::train(const vector<vector<float>>& trainingSet, const vector<int
 
 ostream& operator << (ostream& out, const NeuralNet& nn) {
     out << "{\n";
+    out << "    \"layers\" : " << nn.layers << "," << endl;
+    out << "    \"scalarFuncsCompressFactor\" : " << nn.scalarFuncsCompressFactor << "," << endl;
     // for each layer
-    for (int layer = 0; layer < nn.l; ++layer) {
+    for (int layer = 0; layer < nn.layers; ++layer) {
         out << "    \"layer_" << layer << "\" : {" << endl;
         out << "        \"layer\" : " << layer << "," << endl;
+        out << "        \"neurons\" : " << nn.getNeuronsInLayer(layer) << "," << endl;
+
+        // dealing with weights
         out << "        \"weights\" : " << endl;
-        out << "            [" << endl;
+        out << "        [" << endl;
         Matrix<float> weights = nn.weights[layer];
-        for (size_t rowIdx = 0; rowIdx < weights.rows; rowIdx++) {
-            out << "                [";
-            for (size_t colIdx = 0; colIdx < weights.cols; colIdx++) {
+        for (size_t rowIdx = 0; rowIdx < weights.numRows; rowIdx++) {
+            out << "            [";
+            for (size_t colIdx = 0; colIdx < weights.numCols; colIdx++) {
                 out << weights[rowIdx][colIdx];
-                if(colIdx != weights.cols - 1) {
+                if(colIdx != weights.numCols - 1) {
                     out << ", ";
                 }
             }
             out << "]";
-            if(rowIdx != weights.rows - 1) {
+            if(rowIdx != weights.numRows - 1) {
                 out << "," << endl;
             } else {
                 out << endl;
             }
         }
-        out << "            ]," << endl;
+        out << "        ]," << endl;
+
+        // dealing with biases
+
+        out << "        \"biases\" : [";
+        vector<float> biases = nn.biases[layer];
+        for (size_t i = 0; i < biases.size(); i++) {
+            out << biases[i];
+            if(i != biases.size() - 1) {
+                out << ", ";
+            }
+        }
+        out << "]" << endl;
+
         out << "    }";
 
-        if(layer != nn.l - 1) {
+        if(layer != nn.layers - 1) {
             out << "," << endl;
         } else {
             out << endl;

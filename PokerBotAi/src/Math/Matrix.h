@@ -13,8 +13,8 @@ private:
     vector<vector<T>> m;
 
 public:
-    int rows;
-    int cols;
+    int numRows;
+    int numCols;
 
     Matrix(int rows, int cols, T fillValue);
     Matrix(vector<vector<T>> m);
