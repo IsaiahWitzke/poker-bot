@@ -2,9 +2,91 @@
 #include "../Math/VectorUtils.h"
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <regex>
 
-// TODO: implement me!
-NeuralNet::NeuralNet(istream in, float scalarFuncsCompressFactor) : layers(-1), scalarFuncsCompressFactor(scalarFuncsCompressFactor) {}
+void getLayerDataFromJsonStr(
+    const string& jsonStr,
+    Matrix<float>& weights,
+    vector<float>& biases
+) {
+    smatch matches;
+
+    // weights
+    regex weightsDataPattern("*\"weights\" *:[ \\n]*\\[([0-9\\n \":[,\\].-]*)]*)");
+    regex_search(jsonStr, matches, weightsDataPattern);
+    string weightsDataString = matches[0].str();
+    regex weightsDataRowsPattern("\[.*]");
+    regex_search(weightsDataString, matches, weightsDataRowsPattern);
+    weights.numRows = matches.size();
+
+    vector<vector<float>> m;
+
+    for (size_t i = 0; i < matches.size(); ++i) {
+        string rowStr = matches[i].str();
+        regex elementsPattern("[-.0-9]+");
+        smatch elements;
+        regex_search(rowStr, elements, elementsPattern);
+
+        if (i == 0) {
+            weights.numCols = elements.size();
+        }
+
+        vector<float> row;
+        for (auto elem : elements) {
+            row.push_back(stof(elem.str()));
+        }
+        weights.addRow(row);
+    }
+
+    // biases
+    regex biasesDataPattern("*\"biases\" *:[ \\n]*\\[([0-9\\n ,.-]*)]*)");
+    regex_search(jsonStr, matches, biasesDataPattern);
+    string biasesDataString = matches[0].str();
+    regex biasesElementsPattern("[-.0-9]+");
+    regex_search(weightsDataString, matches, biasesElementsPattern);
+    for (auto bias : matches) {
+        biases.push_back(stof(bias.str()));
+    }
+}
+
+NeuralNet::NeuralNet(const string& filePath) {
+    ifstream inFile(filePath);
+    if (!inFile.is_open()) {
+        throw runtime_error("file (" + filePath + ") does not exists");
+    }
+
+    smatch matches;
+    string file;
+    string line;
+    while (getline(inFile, line)) {
+        file += line + '\n';
+    }
+
+    // layers
+    regex layersPattern(" *\"layers\" *: *([\\w-]*)");
+    regex_search(file, matches, layersPattern);
+    for(auto a : matches) {
+        cout << a.str() << endl;
+    }
+    layers = stoi(matches[1].str());
+
+    // scalarFuncsCompressFactor
+    regex scalarFuncsCompressFactorPattern(" *\"scalarFuncsCompressFactor\" *: *([\\w\\.-]*)");
+    regex_search(file, matches, scalarFuncsCompressFactorPattern);
+    scalarFuncsCompressFactor = stof(matches[1].str());
+
+    // layer data
+    regex layerDataPattern(" *\"layer_[0-9]+\" *:[ \n]*{([\\w\\n \":[,\\].-]*)}");
+    regex_search(file, matches, layerDataPattern);
+    for (size_t i = 0; i < matches.size() - 1; ++i) {   // i < matches.size() - 1 because the last layer doesn't have any relevant data
+        Matrix<float> layerWeights;
+        vector<float> layerBiases;
+        getLayerDataFromJsonStr(matches[i], layerWeights, layerBiases);
+        weights.push_back(layerWeights);
+        biases.push_back(layerBiases);
+    }
+}
 
 NeuralNet::NeuralNet(vector<int> neuronsInLayer, float scalarFuncsCompressFactor) :
     layers(neuronsInLayer.size()), scalarFuncsCompressFactor(scalarFuncsCompressFactor) {
@@ -36,12 +118,13 @@ vector<float> NeuralNet::operator()(const vector<float>& in) {
 }
 
 int NeuralNet::getNeuronsInLayer(const int layer) const {
-    if(layer == layers - 1) {
+    if (layer == layers - 1) {
         return weights[layer - 1].numRows;
-    } else {
+    }
+    else {
         return weights[layer].numCols;
     }
-    
+
 }
 
 
@@ -236,14 +319,15 @@ ostream& operator << (ostream& out, const NeuralNet& nn) {
             out << "            [";
             for (size_t colIdx = 0; colIdx < weights.numCols; colIdx++) {
                 out << weights[rowIdx][colIdx];
-                if(colIdx != weights.numCols - 1) {
+                if (colIdx != weights.numCols - 1) {
                     out << ", ";
                 }
             }
             out << "]";
-            if(rowIdx != weights.numRows - 1) {
+            if (rowIdx != weights.numRows - 1) {
                 out << "," << endl;
-            } else {
+            }
+            else {
                 out << endl;
             }
         }
@@ -255,7 +339,7 @@ ostream& operator << (ostream& out, const NeuralNet& nn) {
         vector<float> biases = nn.biases[layer];
         for (size_t i = 0; i < biases.size(); i++) {
             out << biases[i];
-            if(i != biases.size() - 1) {
+            if (i != biases.size() - 1) {
                 out << ", ";
             }
         }
@@ -263,9 +347,10 @@ ostream& operator << (ostream& out, const NeuralNet& nn) {
 
         out << "    }";
 
-        if(layer != nn.layers - 1) {
+        if (layer != nn.layers - 1) {
             out << "," << endl;
-        } else {
+        }
+        else {
             out << endl;
         }
     }
@@ -278,7 +363,8 @@ void NeuralNet::writeToFile(const string& pathToFile) {
     if (outFile.is_open()) {
         outFile << *this;
         outFile.close();
-    } else {
+    }
+    else {
         cout << "Unable to open file";
     }
 }

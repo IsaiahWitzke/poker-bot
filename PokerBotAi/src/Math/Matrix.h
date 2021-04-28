@@ -16,6 +16,7 @@ public:
     int numRows;
     int numCols;
 
+    Matrix();
     Matrix(int rows, int cols, T fillValue);
     Matrix(vector<vector<T>> m);
     Matrix<T>& operator=(const Matrix<T> matrix);
@@ -29,6 +30,8 @@ public:
     vector<T> operator*(const vector<T>& v);        // matrix * vector multiplication
     vector<T> operator()(const vector<T>& v);       // same as matrix * vector multiplication
     Matrix<T> operator*(const T s);                 // scalar * matrix multiplication
+
+    void addRow(vector<T> row);                     // this is quite ugly... the symptom of this uglyness would take a while to refactor tho (basically need to start using the heap more)
 
     void randomize();
 };

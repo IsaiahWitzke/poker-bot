@@ -15,7 +15,6 @@ struct IntermediateData {
     vector<vector<float>> costsWRTBiasesGradient;
 };
 
-
 class NeuralNet {
 private:
     vector<Matrix<float>> weights;
@@ -26,16 +25,17 @@ private:
 
     vector<IntermediateData> intermediateDataBatch;
 
-    const int layers;
-    const float scalarFuncsCompressFactor;  // if using relu, then this is the "compression" on it
+    int layers;
+    float scalarFuncsCompressFactor;  // if using relu, then this is the "compression" on it
+    
 public:
 
     /**
-     * @brief Construct a new Neural Net object from an input (file) stream
-     *
-     * @param model the steam from which the pretrained net's data comes from
+     * @brief Construct a new Neural Net object from an input file
+     * 
+     * @param filePath
      */
-    NeuralNet(istream in, float scalarFuncsCompressFactor = 1.0);
+    NeuralNet(const string& filePath);
 
     /**
      * @brief Construct a new Neural Net object

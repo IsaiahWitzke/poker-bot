@@ -30,9 +30,11 @@ int main()
 
     // return 0;
 
-    NeuralNet nn({4, 5, 3});
-
-    nn.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout.json");
+    vector<int> neuronsInLayer = {4, 5, 3};
+    NeuralNet nn1(neuronsInLayer);
+    nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
+    NeuralNet nn2("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
+    nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
 
     // vector<float> in = {0.1, 0.2, 0.3, 0.4};
 

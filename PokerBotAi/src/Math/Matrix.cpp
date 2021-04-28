@@ -2,6 +2,9 @@
 #include "VectorUtils.h"
 
 template <typename T>
+Matrix<T>::Matrix() {}
+
+template <typename T>
 Matrix<T>::Matrix(int rows, int cols, T fillValue) : numRows(rows), numCols(cols) {
     for (int i = 0; i < rows; ++i) {
         vector<T> row(cols, fillValue);
@@ -98,6 +101,11 @@ void Matrix<T>::randomize() {
     // for (auto& row : m) {
     //     randomizeVector(row);
     // }
+}
+
+template <typename T>
+void Matrix<T>::addRow(vector<T> row) {
+    m.push_back(row);
 }
 
 // see https://stackoverflow.com/questions/8752837/undefined-reference-to-template-class-constructor
