@@ -10,43 +10,40 @@ void getLayerDataFromJsonStr(
     Matrix<float>& weights,
     vector<float>& biases
 ) {
-    smatch matches;
+    smatch match;
 
-    // weights
-    regex weightsDataPattern("*\"weights\" *:[ \\n]*\\[([0-9\\n \":[,\\].-]*)]*)");
-    regex_search(jsonStr, matches, weightsDataPattern);
-    string weightsDataString = matches[0].str();
-    regex weightsDataRowsPattern("\[.*]");
-    regex_search(weightsDataString, matches, weightsDataRowsPattern);
-    weights.numRows = matches.size();
+    regex weightsDataPattern("\"weights\" *:([ \\n\\[\\]0-9-.,]*)");
+    regex_search(jsonStr, match, weightsDataPattern);
+    string weightsDataString = match[0].str();
+    regex weightsDataRowsPattern("\\[.*\\]");
+    smatch rowmatch;
 
-    vector<vector<float>> m;
-
-    for (size_t i = 0; i < matches.size(); ++i) {
-        string rowStr = matches[i].str();
+    weights.numRows = 0;
+    while(regex_search(weightsDataString, rowmatch, weightsDataRowsPattern)) {
+        weights.numRows++;
+        string rowStr = rowmatch[0].str();
         regex elementsPattern("[-.0-9]+");
-        smatch elements;
-        regex_search(rowStr, elements, elementsPattern);
-
-        if (i == 0) {
-            weights.numCols = elements.size();
-        }
-
+        smatch element;
+        
+        weights.numCols = 0;
         vector<float> row;
-        for (auto elem : elements) {
-            row.push_back(stof(elem.str()));
+        while(regex_search(rowStr, element, elementsPattern)) {
+            weights.numCols++;
+            row.push_back(stof(element[0].str()));
+            rowStr = element.suffix();
         }
         weights.addRow(row);
+        weightsDataString = rowmatch.suffix();
     }
 
     // biases
-    regex biasesDataPattern("*\"biases\" *:[ \\n]*\\[([0-9\\n ,.-]*)]*)");
-    regex_search(jsonStr, matches, biasesDataPattern);
-    string biasesDataString = matches[0].str();
+    regex biasesDataPattern(" *\"biases\" *:[ \\n]*\\[[0-9\\n ,.-]*\\]");
+    regex_search(jsonStr, match, biasesDataPattern);
+    string biasesDataString = match[0].str();
     regex biasesElementsPattern("[-.0-9]+");
-    regex_search(weightsDataString, matches, biasesElementsPattern);
-    for (auto bias : matches) {
-        biases.push_back(stof(bias.str()));
+    while (regex_search(biasesDataString, match, biasesElementsPattern)) {
+        biases.push_back(stof(match[0].str()));
+        biasesDataString = match.suffix();
     }
 }
 
@@ -56,7 +53,7 @@ NeuralNet::NeuralNet(const string& filePath) {
         throw runtime_error("file (" + filePath + ") does not exists");
     }
 
-    smatch matches;
+    smatch match;
     string file;
     string line;
     while (getline(inFile, line)) {
@@ -65,26 +62,32 @@ NeuralNet::NeuralNet(const string& filePath) {
 
     // layers
     regex layersPattern(" *\"layers\" *: *([\\w-]*)");
-    regex_search(file, matches, layersPattern);
-    for(auto a : matches) {
+    regex_search(file, match, layersPattern);
+    for(auto a : match) {
         cout << a.str() << endl;
     }
-    layers = stoi(matches[1].str());
+    layers = stoi(match[1].str());
 
     // scalarFuncsCompressFactor
     regex scalarFuncsCompressFactorPattern(" *\"scalarFuncsCompressFactor\" *: *([\\w\\.-]*)");
-    regex_search(file, matches, scalarFuncsCompressFactorPattern);
-    scalarFuncsCompressFactor = stof(matches[1].str());
+    regex_search(file, match, scalarFuncsCompressFactorPattern);
+    scalarFuncsCompressFactor = stof(match[1].str());
 
     // layer data
-    regex layerDataPattern(" *\"layer_[0-9]+\" *:[ \n]*{([\\w\\n \":[,\\].-]*)}");
-    regex_search(file, matches, layerDataPattern);
-    for (size_t i = 0; i < matches.size() - 1; ++i) {   // i < matches.size() - 1 because the last layer doesn't have any relevant data
+    string layerDataPatternStr = " *\"layer_[0-9]+\" *:[ \\n]*\\{([\\w\n \":[,\\].-]*)\\}";
+    regex layerDataPattern(layerDataPatternStr);
+    while(regex_search(file, match, layerDataPattern)) {
         Matrix<float> layerWeights;
         vector<float> layerBiases;
-        getLayerDataFromJsonStr(matches[i], layerWeights, layerBiases);
+        string layerDataStr = match[1].str();
+        getLayerDataFromJsonStr(layerDataStr, layerWeights, layerBiases);
+        // last element (maybe) is going to be empty, so skip it
+        if(layerWeights.numRows == 0) {
+            break;
+        }
         weights.push_back(layerWeights);
         biases.push_back(layerBiases);
+        file = match.suffix();
     }
 }
 
@@ -309,7 +312,16 @@ ostream& operator << (ostream& out, const NeuralNet& nn) {
     for (int layer = 0; layer < nn.layers; ++layer) {
         out << "    \"layer_" << layer << "\" : {" << endl;
         out << "        \"layer\" : " << layer << "," << endl;
-        out << "        \"neurons\" : " << nn.getNeuronsInLayer(layer) << "," << endl;
+        out << "        \"neurons\" : " << nn.getNeuronsInLayer(layer);
+
+        // dealing with final layer... no weights/biases should really be stored here
+        if(layer == nn.layers - 1) {
+            
+            out << endl << "    }" << endl;
+            break;
+        } else {
+            out << "," << endl;
+        }
 
         // dealing with weights
         out << "        \"weights\" : " << endl;
