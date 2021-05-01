@@ -9,6 +9,8 @@
 #include <string>
 #include <iomanip>
 
+#include "testing.h"
+
 using namespace std;
 
 int main()
@@ -30,11 +32,26 @@ int main()
 
     // return 0;
 
-    vector<int> neuronsInLayer = {4, 5, 3};
-    NeuralNet nn1(neuronsInLayer);
-    nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
-    NeuralNet nn2("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
-    nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
+    vector<int> neuronsInLayer = { 20, 20 };
+    NeuralNet nn1("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
+    // nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
+
+    // turn this into a proper training set
+    vector<vector<float>> trainingSet;
+    for(auto inputActivationSet : activatedInputs) {
+        vector<float> input(20);
+        input[inputActivationSet[0]] = 1.0;
+        input[inputActivationSet[1]] = 1.0;
+        trainingSet.push_back(input);
+    }
+
+    vector<float> out1 = nn1(trainingSet[0]);
+
+    nn1.train(trainingSet, expectedOuts, 1);
+
+    vector<float> out2 = nn1(trainingSet[0]);
+
+    nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
 
     // vector<float> in = {0.1, 0.2, 0.3, 0.4};
 

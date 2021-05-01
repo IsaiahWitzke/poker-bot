@@ -1,11 +1,21 @@
 #include "VectorUtils.h"
 #include <stdlib.h>
 
-vector<float> operator+(vector<float> a, vector<float> b) {
+template<typename T>
+vector<T> operator+(vector<T> a, vector<T> b) {
     const int size = a.size();
-    vector<float> out = a;
+    vector<T> out = a;
     for (size_t i = 0; i < size; i++) {
-        out[i] += b[i];
+        out[i] = out[i] + b[i];
+    }
+    return out;
+}
+
+template<typename T>
+vector<T> operator*(vector<T> a, float b) {
+    vector<T> out = a;
+    for (size_t i = 0; i < a.size(); i++) {
+        out[i] = a[i] * b;
     }
     return out;
 }
@@ -26,6 +36,17 @@ void randomizeVector(vector<T>& v) {
         randomizeElem(e);
     }
 }
+
+// add more templates here (if needed)....
+template vector<int> operator+(vector<int> a, vector<int> b);
+template vector<float> operator+(vector<float> a, vector<float> b);
+template vector<Matrix<float>> operator+(vector<Matrix<float>> a, vector<Matrix<float>> b);
+template vector<vector<float>> operator+(vector<vector<float>> a, vector<vector<float>> b);
+
+template vector<float> operator*(vector<float> a, float b);
+template vector<vector<float>> operator*(vector<vector<float>> a, float b);
+template vector<Matrix<float>> operator*(vector<Matrix<float>> a, float b);
+
 
 template void randomizeElem(int &e);
 template void randomizeElem(float &e);

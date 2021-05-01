@@ -19,15 +19,15 @@ void getLayerDataFromJsonStr(
     smatch rowmatch;
 
     weights.numRows = 0;
-    while(regex_search(weightsDataString, rowmatch, weightsDataRowsPattern)) {
+    while (regex_search(weightsDataString, rowmatch, weightsDataRowsPattern)) {
         weights.numRows++;
         string rowStr = rowmatch[0].str();
         regex elementsPattern("[-.0-9]+");
         smatch element;
-        
+
         weights.numCols = 0;
         vector<float> row;
-        while(regex_search(rowStr, element, elementsPattern)) {
+        while (regex_search(rowStr, element, elementsPattern)) {
             weights.numCols++;
             row.push_back(stof(element[0].str()));
             rowStr = element.suffix();
@@ -63,7 +63,7 @@ NeuralNet::NeuralNet(const string& filePath) {
     // layers
     regex layersPattern(" *\"layers\" *: *([\\w-]*)");
     regex_search(file, match, layersPattern);
-    for(auto a : match) {
+    for (auto a : match) {
         cout << a.str() << endl;
     }
     layers = stoi(match[1].str());
@@ -76,13 +76,13 @@ NeuralNet::NeuralNet(const string& filePath) {
     // layer data
     string layerDataPatternStr = " *\"layer_[0-9]+\" *:[ \\n]*\\{([\\w\n \":[,\\].-]*)\\}";
     regex layerDataPattern(layerDataPatternStr);
-    while(regex_search(file, match, layerDataPattern)) {
+    while (regex_search(file, match, layerDataPattern)) {
         Matrix<float> layerWeights;
         vector<float> layerBiases;
         string layerDataStr = match[1].str();
         getLayerDataFromJsonStr(layerDataStr, layerWeights, layerBiases);
         // last element (maybe) is going to be empty, so skip it
-        if(layerWeights.numRows == 0) {
+        if (layerWeights.numRows == 0) {
             break;
         }
         weights.push_back(layerWeights);
@@ -231,41 +231,21 @@ void NeuralNet::calcCostsWRTBiasesGradient() {
     }
 }
 
-void NeuralNet::makeTrainingStep(
-    const int requestedOutputIdx
-) {
-    calcCostsWRTActivationsGradient(requestedOutputIdx);
-    calcCostsWRTWeightsGradient();
-    calcCostsWRTBiasesGradient();
+void NeuralNet::makeTrainingStep(float stepScalingFactor) {
 
-    // print out the cost function (for interest's sake)
-    float cost = 0;
-    for (size_t i = 0; i < data.neuronActivations[layers - 1].size(); i++) {
-        float curCost = data.neuronActivations[layers - 1][i];
-        if (i == requestedOutputIdx) {
-            curCost -= 1;
-        }
-        cost += curCost * curCost;
-    }
-    cout << cost << endl;
+    // first, calculate the average gradients (initialize with the same sizes, just all elements are 0)
+    vector<Matrix<float>> averageCostsWRTWeightsGradient = data.costsWRTWeightsGradient * 0;
+    vector<vector<float>> averageCostsWRTBiasesGradient = data.costsWRTBiasesGradient * 0;
 
-    // nudge weights
-    for (size_t layer = 0; layer < weights.size(); layer++) {
-        for (size_t i = 0; i < weights[layer].numRows; i++) {        // rows
-            for (size_t j = 0; j < weights[layer].numCols; j++) {    // cols
-                // nudge in direction of negative gradient:
-                this->weights[layer][i][j] -= data.costsWRTWeightsGradient[layer][i][j];
-            }
-        }
+    float weightedAverageFactor = 1.0 / intermediateDataBatch.size();
+    for (size_t i = 0; i < intermediateDataBatch.size(); ++i) {
+        averageCostsWRTWeightsGradient = averageCostsWRTWeightsGradient + (intermediateDataBatch[i].costsWRTWeightsGradient * weightedAverageFactor);
+        averageCostsWRTBiasesGradient = averageCostsWRTBiasesGradient + (intermediateDataBatch[i].costsWRTBiasesGradient * weightedAverageFactor);
     }
 
-    // nudge biases
-    for (size_t layer = 0; layer < biases.size(); layer++) {
-        for (size_t neuron = 0; neuron < biases[layer].size(); neuron++) {
-            // nudge in direction of negative gradient:
-            biases[layer][neuron] -= data.costsWRTBiasesGradient[layer][neuron];
-        }
-    }
+    // nudge in direction of negative gradient:
+    this->weights = weights + (averageCostsWRTWeightsGradient * -1.0 * stepScalingFactor);
+    this->biases = biases + (averageCostsWRTBiasesGradient * -1.0 * stepScalingFactor);
 }
 
 void NeuralNet::calcIntermediateData(const vector<float>& in, const int requestedOutputIdx) {
@@ -276,32 +256,36 @@ void NeuralNet::calcIntermediateData(const vector<float>& in, const int requeste
 }
 
 void NeuralNet::calcIntermediateBatchData(
-    const vector<vector<float>>& inBatch,
-    const vector<int> requestedOutputIdxBatch
+    const vector<vector<float>>& inputsBatch,
+    const vector<int> expectedOutputsBatch
 ) {
-    for (size_t i = 0; i < inBatch.size(); i++) {
-        calcIntermediateData(inBatch[i], requestedOutputIdxBatch[i]);
+    intermediateDataBatch.clear();
+    for (size_t i = 0; i < inputsBatch.size(); i++) {
+        calcIntermediateData(inputsBatch[i], expectedOutputsBatch[i]);
         intermediateDataBatch.push_back(data);
     }
 }
 
-void NeuralNet::train(const vector<vector<float>>& trainingSet, const vector<int>& expectedOutNeuron, const int batchsize) {
-    // for (size_t i = 0; i < trainingSet.size(); i++) {
-    //     // output of all layers
-    //     vector<vector<float>> a();  
+void NeuralNet::train(
+    const vector<vector<float>>& trainingSet,
+    const vector<int>& expectedOuts,
+    const int batchsize
+) {
+    vector<vector<float>> inputsBatch;
+    vector<int> expectedOutputsBatch;
+    cout << "training..." << endl;
+    for (int i = 0; i < trainingSet.size(); ++i) {
+        if ((i % batchsize == 0 && i != 0) || i == trainingSet.size() - 1) {
+            cout << "On set entry " << i << " of " << trainingSet.size() << endl;
+            calcIntermediateBatchData(inputsBatch, expectedOutputsBatch);
+            makeTrainingStep(3.0);
+            inputsBatch.clear();
+            expectedOutputsBatch.clear();
+        }
+        inputsBatch.push_back(trainingSet[i]);
+        expectedOutputsBatch.push_back(expectedOuts[i]);
 
-    //     for (size_t resultIdx = 0; resultIdx < trainingResults.size(); resultIdx++) {
-    //         // calc dC[resultIdx]/da[j]^(L)
-
-    //         for (size_t outputNeuronIdx = 0; outputNeuronIdx < trainingResults[resultIdx].size(); outputNeuronIdx++) {
-
-    //         }
-
-    //     }
-
-    //     vector<float> weightsGradient(trainingResults[0].size(), 0.0);
-    //     vector<float> biasesGradient(trainingResults[0].size(), 0.0);
-    // }
+    }
 }
 
 ostream& operator << (ostream& out, const NeuralNet& nn) {
@@ -315,11 +299,12 @@ ostream& operator << (ostream& out, const NeuralNet& nn) {
         out << "        \"neurons\" : " << nn.getNeuronsInLayer(layer);
 
         // dealing with final layer... no weights/biases should really be stored here
-        if(layer == nn.layers - 1) {
-            
+        if (layer == nn.layers - 1) {
+
             out << endl << "    }" << endl;
             break;
-        } else {
+        }
+        else {
             out << "," << endl;
         }
 

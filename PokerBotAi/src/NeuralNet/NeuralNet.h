@@ -27,12 +27,12 @@ private:
 
     int layers;
     float scalarFuncsCompressFactor;  // if using relu, then this is the "compression" on it
-    
+
 public:
 
     /**
      * @brief Construct a new Neural Net object from an input file
-     * 
+     *
      * @param filePath
      */
     NeuralNet(const string& filePath);
@@ -73,22 +73,35 @@ public:
 
     void calcIntermediateData(const vector<float>& in, const int requestedOutputIdx);
 
-    void calcIntermediateBatchData(const vector<vector<float>>& inBatch, const vector<int> requestedOutputIdxBatch);
-
-    void makeTrainingStep(const int requestedOutputIdx);
+    void calcIntermediateBatchData(
+        const vector<vector<float>>& inputsBatch,
+        const vector<int> expectedOutputsBatch
+    );
 
     /**
-     * @brief train the network on a set of data
-     *
-     * @param trainingInputSet the set of input layer values
-     * @param expectedOutNeuron expectedOutNeuron[i] is the index of the
-     * output layer neuron whose value to be 1.00, with all others to be 0.00
-     * for trainingInputSet[i]
-     * @param batchSize the size of each training batch
+     * @brief nudges weights and biases based on the average gradients found in the
+     * current intermediateDataBatch
      */
-    void train(const vector<vector<float>>& trainingSet, const vector<int>& expectedOutNeuron, const int batchSize = 10);
+    void makeTrainingStep(float stepScalingFactor = 1.0);
 
+    /**
+     * @brief Given a set of inputs and expected outputs, will train the network
+     *
+     * @param trainingSet
+     * @param trainingExpectedOuts
+     * @param batchSize
+     */
+    void train(
+        const vector<vector<float>>& trainingSet,
+        const vector<int>& trainingExpectedOuts,
+        const int batchSize = 10
+    );
 
+    
+
+    /**
+     * @brief Outputs the data in the neural network in a json format that can be parsed back in again for future use
+     */
     void writeToFile(const string& pathToFile);
 
     /**

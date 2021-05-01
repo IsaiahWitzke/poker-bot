@@ -93,6 +93,17 @@ vector<T> Matrix<T>::operator()(const vector<T>& v) {
 }
 
 template <typename T>
+Matrix<T> Matrix<T>::operator*(const T s) {
+    Matrix<T> mOut(m);
+    for (size_t row = 0; row < this->numRows; ++row) {
+        for (size_t i = 0; i < this->numCols; ++i) {
+            mOut[row][i] *= s;
+        }
+    }
+    return mOut;
+}
+
+template <typename T>
 void Matrix<T>::randomize() {
     for (size_t i = 0; i < numRows; i++) {
         randomizeVector(m[i]);
