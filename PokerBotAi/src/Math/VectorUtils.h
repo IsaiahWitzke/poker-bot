@@ -16,6 +16,9 @@ using namespace std;
 template<typename T>
 vector<T> operator+(vector<T> a, vector<T> b);
 
+template<typename T>
+vector<T> operator-(vector<T> a, vector<T> b);
+
 /**
  * @brief Vector-scalar multiplication
  * 
@@ -26,6 +29,15 @@ vector<T> operator+(vector<T> a, vector<T> b);
  */
 template <typename T>
 vector<T> operator*(vector<T> a, float b);
+
+// template <typename T>
+// T operator*(const vector<T>& a, const vector<T>& b);
+
+template <typename T>
+vector<T> elementWiseProduct(const vector<T>& a, const vector<T>& b);
+
+// template <typename T>
+// Matrix<T> elementWiseProduct(const Matrix<T>& a, const vector<T>& b);
 
 template <typename T>
 void randomizeElem(T &e);

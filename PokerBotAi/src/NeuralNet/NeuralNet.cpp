@@ -134,100 +134,75 @@ int NeuralNet::getNeuronsInLayer(const int layer) const {
 void NeuralNet::calcIntermediateValues(const vector<float>& in) {
     // NOTE: we dont apply biases or sigmoid to input layer
     data.neuronActivations = { in };
-    data.neuronActivationsPreSigmoid = { in };
+    data.neuronActivationsPreActivation = { in };
 
     // temp intermediate data vectors which will update for each layer
-    vector<float> preSigmoid;
-    vector<float> postSigmoid = in;
+    vector<float> preActivationValues;
+    vector<float> previousLayerActivations = in;
 
-    // for each layer...
+    // for each layer... ("forward pass")
     for (size_t i = 0; i < layers - 1; i++) {
-        // next data = (weights matrix) * (input values vector) + (biases vector)
-        preSigmoid = (weights[i] * postSigmoid) + biases[i];
-        data.neuronActivationsPreSigmoid.push_back(preSigmoid);
-
-        postSigmoid = preSigmoid;
-
-        // for each neuron...
-        for (size_t j = 0; j < preSigmoid.size(); j++) {
-            // apply the sigmoid
-            postSigmoid[j] = sigmoid(preSigmoid[j]);
+        // (this layer's data before activation function)
+        //            = (weights matrix) * (input values or previous layer vector) + (biases vector)
+        // z[i] = W^[i] a^[i-1] + b^[i]
+        if (i == 0) {
+            data.neuronActivationsPreActivation.push_back(
+                (weights[i] * in) + biases[i]
+            );
         }
-        data.neuronActivations.push_back(postSigmoid);
+        else {
+            data.neuronActivationsPreActivation.push_back(
+                (weights[i] * data.neuronActivations[i - 1]) + biases[i]
+            );
+        }
+
+        // Non-linear activation function time!
+        // a^[i] = ReLU(W^[i] a^[i-1] + b^[i]) = ReLU(z^[i])
+        // OR....
+        // a^[i] = sigmoid(W^[i] a^[i-1] + b^[i]) = sigmoid(z^[i])
+        // NOTE: we don't apply the activation function to the final layer
+        if (i != layers - 2) {
+            data.neuronActivations.push_back(
+                relu(data.neuronActivationsPreActivation[i])
+            );
+        }
+        else {
+            data.neuronActivations.push_back(
+                data.neuronActivationsPreActivation[i]
+            );
+        }
     }
 }
 
-
-// to calc delta cost wrt the activations of every neuron in the network
-// TODO: generalize this. "requestedOutputIdx" should be a vector of requested output values
-void NeuralNet::calcCostsWRTActivationsGradient(const int requestedOutputIdx) {
+void NeuralNet::calcGradients(const vector<float>& requestedOutput) {
     const int L = layers - 1;
 
-    data.costsWRTActivationsGradient = data.neuronActivations; // initializing the future-output as the intermediate activations because a will have the corect dimensions
+    // initializing the future-output as the biases/weights because each will have the corect dimensions
+    data.costsWRTBiasesGradient = biases;
+    data.costsWRTWeightsGradient = weights;
 
-    // start at front (output layer) and propogate backwards
+    // see the notation used in the stanford course notes for "delata"
+    // From what I understand, is that the delata represents dC/dz
+    vector<vector<float>> deltas(L);
+
+    // start at back (output layer) and propogate towards the back
     for (int layer = L; layer >= 0; layer--) {
-        for (size_t neuron = 0; neuron < data.costsWRTActivationsGradient[layer].size(); neuron++) {
-            if (layer == L) { // for the end layer, the solutions are trivial
-                float y = 0.0;
-                if (neuron == requestedOutputIdx) {
-                    y = 1.0;
-                }
-                data.costsWRTActivationsGradient[layer][neuron] = dcWRTda(data.neuronActivations[layer][neuron], y);
-            }
-            else {  // otherwise, changes in activation of the curent neuron has effects on each following neuron
-                data.costsWRTActivationsGradient[layer][neuron] = 0.0;
-                for (size_t nextLayerNeuron = 0; nextLayerNeuron < data.costsWRTActivationsGradient[layer + 1].size(); nextLayerNeuron++) {
-                    // start with: dz(L+1)/da(L)
-                    float costsWRTActivationsGradientCurNeuron = dzWRTda_previous(weights[layer][nextLayerNeuron][neuron]);
-                    // multiply: da(L+1)/dz(L+1)
-                    costsWRTActivationsGradientCurNeuron *= daWRTdz_sigmoid(data.neuronActivationsPreSigmoid[layer + 1][nextLayerNeuron]);
-                    // multiply: dc(L+1)/da(L+1)
-                    costsWRTActivationsGradientCurNeuron *= data.costsWRTActivationsGradient[layer + 1][nextLayerNeuron];  // starts to get recursive here!
-
-                    data.costsWRTActivationsGradient[layer][neuron] += costsWRTActivationsGradientCurNeuron;
-                }
-            }
+        if (layer == L) {
+            deltas[layer] = (data.neuronActivations[layer + 1] - requestedOutput);
         }
-    }
-}
-
-void NeuralNet::calcCostsWRTWeightsGradient() {
-    const int L = layers - 1;
-    data.costsWRTWeightsGradient = weights; // initializing the future-output as the weights because a will have the corect dimensions
-
-    // note: because of implementaiton weights[L - 1] in this implementation = w^(L) in the 3B1B videos
-
-    // start at front (output layer) and propogate backwards
-    for (int layer = L; layer >= 1; layer--) {
-        for (int i = 0; i < weights[layer - 1].numCols; i++) {          // i = index of previous layer's neurons
-            for (int j = 0; j < weights[layer - 1].numRows; j++) {      // j = index of cur layer's neurons
-                // start: neuron activation derivative (dc/da) of cur layer
-                data.costsWRTWeightsGradient[layer - 1][j][i] = data.costsWRTActivationsGradient[layer][j];
-                // multiply: da/dz for cur layer
-                data.costsWRTWeightsGradient[layer - 1][j][i] *= daWRTdz_sigmoid(data.neuronActivationsPreSigmoid[layer][j]);
-                // multiply: dz/dw
-                data.costsWRTWeightsGradient[layer - 1][j][i] *= dzWRTdw(data.neuronActivations[layer][j]);
-            }
+        else {
+            deltas[layer] = elementWiseProduct(
+                weights[layer + 1].transpose() * deltas[layer + 1],
+                daWRTdz_relu(data.neuronActivationsPreActivation[layer + 1])
+            );
         }
-    }
-}
 
-void NeuralNet::calcCostsWRTBiasesGradient() {
-    const int L = layers - 1;
+        data.costsWRTWeightsGradient[layer] = elementWiseProduct(
+            deltas[layer],
+            data.neuronActivations[layer]
+        );
 
-    data.costsWRTBiasesGradient = biases; // initializing the future-output as the biases because will have the corect dimensions
-
-    // start at front (output layer) and propogate backwards
-    for (int layer = L; layer >= 1; layer--) {
-        for (int neuron = 0; neuron < biases[layer - 1].size(); neuron++) {
-            // start: neuron activation derivative (dc/da) of cur layer
-            data.costsWRTBiasesGradient[layer - 1][neuron] = data.costsWRTActivationsGradient[layer][neuron];
-            // multiply: da/dz for cur layer
-            data.costsWRTBiasesGradient[layer - 1][neuron] *= daWRTdz_sigmoid(data.neuronActivationsPreSigmoid[layer][neuron]);
-            // multiply: dz/db (this line can be removed since dz/db = 1)
-            data.costsWRTBiasesGradient[layer - 1][neuron] *= dzWRTdb();
-        }
+        data.costsWRTWeightsGradient[layer] = deltas[layer];
     }
 }
 
@@ -248,16 +223,17 @@ void NeuralNet::makeTrainingStep(float stepScalingFactor) {
     this->biases = biases + (averageCostsWRTBiasesGradient * -1.0 * stepScalingFactor);
 }
 
-void NeuralNet::calcIntermediateData(const vector<float>& in, const int requestedOutputIdx) {
+void NeuralNet::calcIntermediateData(
+    const vector<float>& in,
+    const vector<float>& requestedOutput
+) {
     calcIntermediateValues(in);
-    calcCostsWRTActivationsGradient(requestedOutputIdx);
-    calcCostsWRTWeightsGradient();
-    calcCostsWRTBiasesGradient();
+    calcGradients(requestedOutput);
 }
 
 void NeuralNet::calcIntermediateBatchData(
     const vector<vector<float>>& inputsBatch,
-    const vector<int> expectedOutputsBatch
+    const vector<vector<float>>& expectedOutputsBatch
 ) {
     intermediateDataBatch.clear();
     for (size_t i = 0; i < inputsBatch.size(); i++) {
@@ -267,23 +243,24 @@ void NeuralNet::calcIntermediateBatchData(
 }
 
 void NeuralNet::train(
-    const vector<vector<float>>& trainingSet,
-    const vector<int>& expectedOuts,
-    const int batchsize
+    const vector<vector<float>>& trainingSetInputs,
+    const vector<vector<float>>& trainingSetExpectedOuts,
+    const int batchsize,
+    const float stepSize
 ) {
     vector<vector<float>> inputsBatch;
-    vector<int> expectedOutputsBatch;
+    vector<vector<float>> expectedOutputsBatch;
     cout << "training..." << endl;
-    for (int i = 0; i < trainingSet.size(); ++i) {
-        if ((i % batchsize == 0 && i != 0) || i == trainingSet.size() - 1) {
-            cout << "On set entry " << i << " of " << trainingSet.size() << endl;
+    for (int i = 0; i < trainingSetInputs.size(); ++i) {
+        if ((i % batchsize == 0 && i != 0) || i == trainingSetInputs.size() - 1) {
+            cout << "On set entry " << i << " of " << trainingSetInputs.size() << endl;
             calcIntermediateBatchData(inputsBatch, expectedOutputsBatch);
             makeTrainingStep(3.0);
             inputsBatch.clear();
             expectedOutputsBatch.clear();
         }
-        inputsBatch.push_back(trainingSet[i]);
-        expectedOutputsBatch.push_back(expectedOuts[i]);
+        inputsBatch.push_back(trainingSetInputs[i]);
+        expectedOutputsBatch.push_back(trainingSetExpectedOuts[i]);
 
     }
 }

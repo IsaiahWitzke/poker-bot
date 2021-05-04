@@ -9,7 +9,7 @@ using namespace std;
 
 struct IntermediateData {
     vector<vector<float>> neuronActivations;
-    vector<vector<float>> neuronActivationsPreSigmoid;
+    vector<vector<float>> neuronActivationsPreActivation;
     vector<vector<float>> costsWRTActivationsGradient;
     vector<Matrix<float>> costsWRTWeightsGradient;
     vector<vector<float>> costsWRTBiasesGradient;
@@ -65,17 +65,13 @@ public:
      */
     void calcIntermediateValues(const vector<float>& in);
 
-    void calcCostsWRTActivationsGradient(const int requestedOutputIdx);
+    void calcGradients(const vector<float>& requestedOutput);
 
-    void calcCostsWRTWeightsGradient();
-
-    void calcCostsWRTBiasesGradient();
-
-    void calcIntermediateData(const vector<float>& in, const int requestedOutputIdx);
+    void calcIntermediateData(const vector<float>& in, const vector<float>& requestedOutput);
 
     void calcIntermediateBatchData(
         const vector<vector<float>>& inputsBatch,
-        const vector<int> expectedOutputsBatch
+        const vector<vector<float>>& expectedOutputsBatch
     );
 
     /**
@@ -93,11 +89,12 @@ public:
      */
     void train(
         const vector<vector<float>>& trainingSet,
-        const vector<int>& trainingExpectedOuts,
-        const int batchSize = 10
+        const vector<vector<float>>& trainingExpectedOuts,
+        const int batchSize = 100,
+        const float stepSize = 1.0
     );
 
-    
+
 
     /**
      * @brief Outputs the data in the neural network in a json format that can be parsed back in again for future use

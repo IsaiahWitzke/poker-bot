@@ -6,8 +6,16 @@ Matrix<T>::Matrix() {}
 
 template <typename T>
 Matrix<T>::Matrix(int rows, int cols, T fillValue) : numRows(rows), numCols(cols) {
-    for (int i = 0; i < rows; ++i) {
+    for (size_t i = 0; i < rows; ++i) {
         vector<T> row(cols, fillValue);
+        this->m.push_back(row);
+    }
+}
+
+template <typename T>
+Matrix<T>::Matrix(vector<T> v) : numRows(v.size()), numCols(1) {
+    for (size_t i = 0; i < v.size(); ++i) {
+        vector<T> row(1, v[i]);
         this->m.push_back(row);
     }
 }
@@ -52,6 +60,22 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T>& mInput) {
 
     return mOut;
 }
+
+template <typename T>
+Matrix<T> Matrix<T>::operator-(const Matrix<T>& mInput) {
+    // TODO: could do some checking of rows/columns here
+
+    Matrix<T> mOut(mInput);
+
+    for (int i = 0; i < this->m.size(); ++i) {
+        for (int j = 0; j < this->m[i].size(); ++j) {
+            mOut[i][j] -= this->m[i][j];
+        }
+    }
+
+    return mOut;
+}
+
 
 template <typename T>
 Matrix<T> Matrix<T>::operator*(const Matrix<T>& mInput) {
@@ -117,6 +141,17 @@ void Matrix<T>::randomize() {
 template <typename T>
 void Matrix<T>::addRow(vector<T> row) {
     m.push_back(row);
+}
+
+template <typename T>
+Matrix<T> Matrix<T>::transpose() {
+    Matrix<T> out(numCols, numRows, 0.0);
+    for (size_t rowIdx = 0; rowIdx < numRows; rowIdx++) {
+        for (size_t colIdx = 0; colIdx < numCols; colIdx++) {
+            out[colIdx][rowIdx] = m[rowIdx][colIdx];
+        }
+    }
+    return out;
 }
 
 // see https://stackoverflow.com/questions/8752837/undefined-reference-to-template-class-constructor
