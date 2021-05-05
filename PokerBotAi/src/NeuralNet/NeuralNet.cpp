@@ -145,16 +145,10 @@ void NeuralNet::calcIntermediateValues(const vector<float>& in) {
         // (this layer's data before activation function)
         //            = (weights matrix) * (input values or previous layer vector) + (biases vector)
         // z[i] = W^[i] a^[i-1] + b^[i]
-        if (i == 0) {
-            data.neuronActivationsPreActivation.push_back(
-                (weights[i] * in) + biases[i]
-            );
-        }
-        else {
-            data.neuronActivationsPreActivation.push_back(
-                (weights[i] * data.neuronActivations[i - 1]) + biases[i]
-            );
-        }
+        data.neuronActivationsPreActivation.push_back(
+            (weights[i] * data.neuronActivations[i]) + biases[i]
+        );
+
 
         // Non-linear activation function time!
         // a^[i] = ReLU(W^[i] a^[i-1] + b^[i]) = ReLU(z^[i])
@@ -163,19 +157,19 @@ void NeuralNet::calcIntermediateValues(const vector<float>& in) {
         // NOTE: we don't apply the activation function to the final layer
         if (i != layers - 2) {
             data.neuronActivations.push_back(
-                relu(data.neuronActivationsPreActivation[i])
+                relu(data.neuronActivationsPreActivation[i + 1])
             );
         }
         else {
             data.neuronActivations.push_back(
-                data.neuronActivationsPreActivation[i]
+                data.neuronActivationsPreActivation[i + 1]
             );
         }
     }
 }
 
 void NeuralNet::calcGradients(const vector<float>& requestedOutput) {
-    const int L = layers - 1;
+    const int L = layers - 2;
 
     // initializing the future-output as the biases/weights because each will have the corect dimensions
     data.costsWRTBiasesGradient = biases;
@@ -183,7 +177,7 @@ void NeuralNet::calcGradients(const vector<float>& requestedOutput) {
 
     // see the notation used in the stanford course notes for "delata"
     // From what I understand, is that the delata represents dC/dz
-    vector<vector<float>> deltas(L);
+    vector<vector<float>> deltas(layers - 1);
 
     // start at back (output layer) and propogate towards the back
     for (int layer = L; layer >= 0; layer--) {
@@ -197,12 +191,13 @@ void NeuralNet::calcGradients(const vector<float>& requestedOutput) {
             );
         }
 
-        data.costsWRTWeightsGradient[layer] = elementWiseProduct(
-            deltas[layer],
-            data.neuronActivations[layer]
-        );
+        vector<float> test = data.neuronActivations[layer];
+        Matrix<float> previousLayerActivationTranspose(test, true);
+        Matrix<float> deltaCurLayer(deltas[layer]);
 
-        data.costsWRTWeightsGradient[layer] = deltas[layer];
+        data.costsWRTWeightsGradient[layer] = deltaCurLayer * previousLayerActivationTranspose;
+
+        data.costsWRTBiasesGradient[layer] = deltas[layer];
     }
 }
 
@@ -255,7 +250,7 @@ void NeuralNet::train(
         if ((i % batchsize == 0 && i != 0) || i == trainingSetInputs.size() - 1) {
             cout << "On set entry " << i << " of " << trainingSetInputs.size() << endl;
             calcIntermediateBatchData(inputsBatch, expectedOutputsBatch);
-            makeTrainingStep(3.0);
+            makeTrainingStep(stepSize);
             inputsBatch.clear();
             expectedOutputsBatch.clear();
         }

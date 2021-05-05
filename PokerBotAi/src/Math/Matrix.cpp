@@ -13,10 +13,17 @@ Matrix<T>::Matrix(int rows, int cols, T fillValue) : numRows(rows), numCols(cols
 }
 
 template <typename T>
-Matrix<T>::Matrix(vector<T> v) : numRows(v.size()), numCols(1) {
-    for (size_t i = 0; i < v.size(); ++i) {
-        vector<T> row(1, v[i]);
-        this->m.push_back(row);
+Matrix<T>::Matrix(vector<T> v, bool isTranspose) : numRows(v.size()), numCols(1) {
+    if (isTranspose) {
+        numCols = numRows;
+        numRows = 1;
+        this->m.push_back(v);
+    }
+    else {
+        for (size_t i = 0; i < v.size(); ++i) {
+            vector<T> row(1, v[i]);
+            this->m.push_back(row);
+        }
     }
 }
 

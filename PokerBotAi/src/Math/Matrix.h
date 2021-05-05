@@ -18,7 +18,7 @@ public:
 
     Matrix();
     Matrix(int rows, int cols, T fillValue);
-    Matrix(vector<T> v);                            // initialized matrix with 1 column = v
+    Matrix(vector<T> v, bool isTranspose = false);  // initialized matrix with 1 column = v
     Matrix(vector<vector<T>> m);
     Matrix<T>& operator=(const Matrix<T> matrix);
     ~Matrix();

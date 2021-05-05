@@ -16,6 +16,10 @@ Ok, so I've gone through [3B1B's video series on neural networks](https://www.yo
 
 To simplify the debugging process, I'm trying to get a neural network to learn how to add 2 numbers together. This task should be able to be learned by a simple "neural network" with only 1 layer (and potentially no sigmoid/non-linear functions inside). By doing this, I'm turning my neural network into a glorified linear regression algorithm, but hopefully this just makes debugging easier.
 
+### The simple problem (2021-05-04):
+
+Add 2 numbers together. Will make 2 inputs, and one output. No hidden layers. This entire $`\sqrt{2}`$
+
 ## 2021-05-04
 
-Refactoring code to be consistent with Stanford's course notes. This means rewriting everything in "vectorized" notation (now taking partial derivatives of matrices and vectors instead of looping thru the vectors and doing the individual derivatives). 
+Refactoring code to be consistent with Stanford's course notes. This means rewriting everything in "vectorized" notation (now taking partial derivatives of matrices and vectors instead of looping thru the vectors and doing the individual derivatives).

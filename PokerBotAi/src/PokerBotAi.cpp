@@ -34,25 +34,9 @@ int main()
 
     vector<int> neuronsInLayer = { 2, 1 };
     NeuralNet nn1(neuronsInLayer);
-    // nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
+    nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
 
-    // turn this into a proper training set
-    vector<vector<float>> trainingSet;
-    for(auto inputActivationSet : activatedInputs) {
-        vector<float> input(20);
-        input[inputActivationSet[0]] = 1.0;
-        input[inputActivationSet[1]] = 1.0;
-        trainingSet.push_back(input);
-    }
-
-    vector<vector<float>> trainingSetOuts;
-    for(auto outputActivations : expectedOuts) {
-        vector<float> outs(20);
-        outs[outputActivations] = 1.0;
-        trainingSetOuts.push_back(outs);
-    }
-
-    nn1.train(trainingSet, trainingSetOuts, 4);
+    nn1.train(trainingInputs, trainingExpectedOutputs, 4);
 
     nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
 
