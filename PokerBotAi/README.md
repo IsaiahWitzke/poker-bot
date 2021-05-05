@@ -26,9 +26,19 @@ Ideally, we would like to see ![equation](https://latex.codecogs.com/gif.latex?W
 
 For testing, I used 100 elements of training data. 1 element of the training data in this scenario looks something like: "0.62 + 0.17 = 0.79". For this case, 0.62 and 0.17 are the inputs, and 0.79 is the expected output of the model.
 
-Initially, the weights and bias are set to random values. W = [[-0.997497, 0.127171]] and b = \[-0.613392]
+Initially, the weights and bias are set to random values. W = [[-0.997497, 0.127171]] and b = \[-0.613392].
 
-Setting the "training batch size" to 10, 
+Setting the "training batch size" to 10, after training we get the model's new weights and biases as: W = [[0.196435, 0.643688]] and b = \[0.469771]... not quite!
+
+Setting the "training batch size" to 5, the model's new weights and biases are found to be: W = [[0.636033, 0.870602]] and b = \[0.366434]... better!
+
+Finally, by setting the "training batch size" to 1, the model's new weights and biases are found to be: W = [[0.99684, 0.996662]] and b = \[0.00206637]... thats what we're looking for!
+
+So, from initial inspection, the neural network (when dumbed down into a linear regression model) can learn the very simple task of adding 2 numbers!
+
+Note: when training in "batches", it didn't work out to well... I wonder if this is just because of the lack of training data?
+
+Trying with a training set of data with 500 entries with batch size of 10 again yields: W = [[0.952703, 0.971083]], and b = \[0.0351845]... ok, nice!
 
 ## 2021-05-04
 
