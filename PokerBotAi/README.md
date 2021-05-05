@@ -10,7 +10,7 @@ I don't know what I am doing...
 
 ## 2021-05-01
 
-Ok, so I've gone through [3B1B's video series on neural networks](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi&index=1) and attempted to implement it into C++. This attempt at implementation into C++ can be seen in the `src/` folder. I've been trying to get it to do image classification on the MNIST images, but this yielded very hard to debug (because of course I need to debug! Theres no chance I got all this stuff correct the first time around!). Around the first debugging issues, I started using [Stanford's course notes on neural networks/machine learning](http://cs229.stanford.edu/syllabus-spring2021.html) to get another "angle of understanding" and highlight some dark spots in my knowledge. 
+Ok, so I've gone through [3B1B's video series on neural networks](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi&index=1) and attempted to implement it into C++. This attempt at implementation into C++ can be seen in the `src/` folder. I've been trying to get it to do image classification on the MNIST images, but this yielded very hard to debug (because of course I need to debug! Theres no chance I got all this stuff correct the first time around!). Around the time of the first batch of debugging issues, I started using [Stanford's course notes on neural networks/machine learning](http://cs229.stanford.edu/syllabus-spring2021.html) to get another "angle of understanding" and highlight some dark spots in my knowledge.
 
 ## 2021-05-03
 
