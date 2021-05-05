@@ -18,7 +18,10 @@ To simplify the debugging process, I'm trying to get a neural network to learn h
 
 ### The simple problem (2021-05-04):
 
-Add 2 numbers together. Will make 2 inputs, and one output. No hidden layers. This entire $`\sqrt{2}`$
+Add 2 numbers together. Will make 2 inputs, and one output. No hidden layers. This entire 
+```math
+SE = \frac{\sigma}{\sqrt{n}}
+```
 
 ## 2021-05-04
 
