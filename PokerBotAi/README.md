@@ -20,7 +20,7 @@ To simplify the debugging process, I'm trying to get a neural network to learn h
 
 Add 2 numbers together. Will make 2 inputs, and one output. No hidden layers. This entire neural network can be represented by 1 linear expression: ![equation](https://latex.codecogs.com/gif.latex?h_{\theta}(x)&space;=&space;W_{\theta}x&space;&plus;&space;b_{\theta}). Where ![equation](https://latex.codecogs.com/gif.latex?W_{\theta}&space;\in&space;\mathbb{R}^{1\times&space;2}) represents all the weights that make up the network, and ![equation](https://latex.codecogs.com/gif.latex?b_{\theta}&space;\in&space;\mathbb{R}^{2}) represent all the biases. As can be seen, no non-linear ReLU or sigmoid function are found here yet, so this just acts as a simple linear model. This should be appropriate since all we are trying to do is predict the sum of 2 input variables - in this case, these 2 inputs are represented by ![equation](https://latex.codecogs.com/gif.latex?x&space;\in&space;\mathbb{R}^{2}).
 
-Ideally, we would like to see ![equation](https://latex.codecogs.com/gif.latex?W_{\theta}&space;=&space;[1,1]) and ![equation](https://latex.codecogs.com/gif.latex?b_{\theta}&space;=&space;[0,0]^T) since this would make ![equation](https://latex.codecogs.com/gif.latex?h_{\theta}(x)&space;=&space;W_{\theta}x&space;&plus;&space;b_{\theta} = as)
+Ideally, we would like to see ![equation](https://latex.codecogs.com/gif.latex?W_{\theta}&space;=&space;[1,1]) and ![equation](https://latex.codecogs.com/gif.latex?b_{\theta}&space;=&space;[0,0]^T) since this would make ![equation](https://latex.codecogs.com/gif.latex?h_{\theta}(x)&space;=&space;W_{\theta}x&space;&plus;&space;b_{\theta}&space;=&space;as)
 
 ## 2021-05-04
 
