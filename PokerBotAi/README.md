@@ -18,9 +18,17 @@ To simplify the debugging process, I'm trying to get a neural network to learn h
 
 ### The simple problem (2021-05-04):
 
-Add 2 numbers together. Will make 2 inputs, and one output. No hidden layers. This entire neural network can be represented by 1 linear expression: ![equation](https://latex.codecogs.com/gif.latex?h_{\theta}(x)&space;=&space;W_{\theta}x&space;&plus;&space;b_{\theta}). Where ![equation](https://latex.codecogs.com/gif.latex?W_{\theta}&space;\in&space;\mathbb{R}^{1\times&space;2}) represents all the weights that make up the network, and ![equation](https://latex.codecogs.com/gif.latex?b_{\theta}&space;\in&space;\mathbb{R}^{2}) represent all the biases. As can be seen, no non-linear ReLU or sigmoid function are found here yet, so this just acts as a simple linear model. This should be appropriate since all we are trying to do is predict the sum of 2 input variables - in this case, these 2 inputs are represented by ![equation](https://latex.codecogs.com/gif.latex?x&space;\in&space;\mathbb{R}^{2}).
+Add 2 numbers together. Will make 2 inputs, and one output. No hidden layers. This entire neural network can be represented by 1 linear expression: ![equation](https://latex.codecogs.com/gif.latex?h_{\theta}(x)&space;=&space;W_{\theta}x&space;&plus;&space;b_{\theta}). Where ![equation](https://latex.codecogs.com/gif.latex?W_{\theta}&space;\in&space;\mathbb{R}^{1\times&space;2}) represents all the weights that make up the network, and ![equation](https://latex.codecogs.com/gif.latex?b_{\theta}&space;\in&space;\mathbb{R}^{1}) represent all the biases. As can be seen, no non-linear ReLU or sigmoid function are found here yet, so this just acts as a simple linear model. This should be appropriate since all we are trying to do is predict the sum of 2 input variables - in this case, these 2 inputs are represented by ![equation](https://latex.codecogs.com/gif.latex?x&space;\in&space;\mathbb{R}^{2}).
 
-Ideally, we would like to see ![equation](https://latex.codecogs.com/gif.latex?W_{\theta}&space;=&space;[1,1]) and ![equation](https://latex.codecogs.com/gif.latex?b_{\theta}&space;=&space;[0,0]^T) since this would make ![equation](https://latex.codecogs.com/gif.latex?h_{\theta}(x)&space;=&space;W_{\theta}x&space;&plus;&space;b_{\theta}&space;=&space;as)
+Ideally, we would like to see ![equation](https://latex.codecogs.com/gif.latex?W_{\theta}&space;=&space;[1,1]) and ![equation](https://latex.codecogs.com/gif.latex?b_{\theta}&space;=&space;[0]) since this would make ![equation](https://latex.codecogs.com/gif.latex?h_{\theta}(x)&space;=&space;W_{\theta}x&space;&plus;&space;b_{\theta}&space;=&space;[1,1]x+[0]=x_1+x_2) which is what we are trying to find.
+
+### Results:
+
+For testing, I used 100 elements of training data. 1 element of the training data in this scenario looks something like: "0.62 + 0.17 = 0.79". For this case, 0.62 and 0.17 are the inputs, and 0.79 is the expected output of the model.
+
+Initially, the weights and bias are set to random values. W = [[-0.997497, 0.127171]] and b = \[-0.613392]
+
+Setting the "training batch size" to 10, 
 
 ## 2021-05-04
 

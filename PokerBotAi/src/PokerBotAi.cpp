@@ -36,7 +36,7 @@ int main()
     NeuralNet nn1(neuronsInLayer);
     nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
 
-    nn1.train(trainingInputs, trainingExpectedOutputs, 4);
+    nn1.train(trainingInputs, trainingExpectedOutputs, 10);
 
     nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
 
