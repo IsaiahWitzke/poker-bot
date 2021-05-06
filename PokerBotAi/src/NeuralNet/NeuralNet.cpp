@@ -99,8 +99,8 @@ NeuralNet::NeuralNet(vector<int> neuronsInLayer, float scalarFuncsCompressFactor
     // initialize all weights and biases to random values
     for (size_t i = 0; i < layers - 1; i++) {
         srand(1);
-        Matrix<float> weights(neuronsInLayer[i + 1], neuronsInLayer[i], 0.0);     // each row reps all the links from input neuron to next neurons
-        weights.randomize();
+        Matrix<float> weights(neuronsInLayer[i + 1], neuronsInLayer[i], 1.0);     // each row reps all the links from input neuron to next neurons
+        // weights.randomize();
         this->weights.push_back(weights);
         vector<float> biases(neuronsInLayer[i + 1], 0.0);
         randomizeVector(biases);
@@ -246,7 +246,7 @@ void NeuralNet::train(
     cout << "training... training set size = " << trainingSetSize << ", batch size = " << batchsize << ", step size = " << stepSize << endl;
     for (int i = 0; i < trainingSetSize; ++i) {
         if ((i % batchsize == 0 && i != 0) || i == trainingSetSize - 1) {
-            // cout << "On set entry " << i << " of " << trainingSetSize << endl;
+            cout << "On set entry " << i << " of " << trainingSetSize << endl;
             calcIntermediateBatchData(inputsBatch, expectedOutputsBatch);
             makeTrainingStep(stepSize);
             inputsBatch.clear();

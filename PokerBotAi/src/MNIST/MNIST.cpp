@@ -2,6 +2,8 @@
 #include <math.h>
 #include <iomanip>
 
+
+// the following 2 functions were ripped straight off of stackoverflow
 unsigned char** read_mnist_images(string full_path, int& number_of_images, int& image_size) {
     auto reverseInt = [](int i) {
         unsigned char c1, c2, c3, c4;
@@ -13,27 +15,28 @@ unsigned char** read_mnist_images(string full_path, int& number_of_images, int& 
 
     ifstream file(full_path, ios::binary);
 
-    if(file.is_open()) {
+    if (file.is_open()) {
         int magic_number = 0, n_rows = 0, n_cols = 0;
 
-        file.read((char *)&magic_number, sizeof(magic_number));
+        file.read((char*)&magic_number, sizeof(magic_number));
         magic_number = reverseInt(magic_number);
 
-        if(magic_number != 2051) throw runtime_error("Invalid MNIST image file!");
+        if (magic_number != 2051) throw runtime_error("Invalid MNIST image file!");
 
-        file.read((char *)&number_of_images, sizeof(number_of_images)), number_of_images = reverseInt(number_of_images);
-        file.read((char *)&n_rows, sizeof(n_rows)), n_rows = reverseInt(n_rows);
-        file.read((char *)&n_cols, sizeof(n_cols)), n_cols = reverseInt(n_cols);
+        file.read((char*)&number_of_images, sizeof(number_of_images)), number_of_images = reverseInt(number_of_images);
+        file.read((char*)&n_rows, sizeof(n_rows)), n_rows = reverseInt(n_rows);
+        file.read((char*)&n_cols, sizeof(n_cols)), n_cols = reverseInt(n_cols);
 
         image_size = n_rows * n_cols;
 
-        uchar** _dataset = new uchar*[number_of_images];
-        for(int i = 0; i < number_of_images; i++) {
+        uchar** _dataset = new uchar * [number_of_images];
+        for (int i = 0; i < number_of_images; i++) {
             _dataset[i] = new uchar[image_size];
-            file.read((char *)_dataset[i], image_size);
+            file.read((char*)_dataset[i], image_size);
         }
         return _dataset;
-    } else {
+    }
+    else {
         throw runtime_error("Cannot open file `" + full_path + "`!");
     }
 }
@@ -49,21 +52,22 @@ unsigned char* read_mnist_labels(string full_path, int& number_of_labels) {
 
     ifstream file(full_path, ios::binary);
 
-    if(file.is_open()) {
+    if (file.is_open()) {
         int magic_number = 0;
-        file.read((char *)&magic_number, sizeof(magic_number));
+        file.read((char*)&magic_number, sizeof(magic_number));
         magic_number = reverseInt(magic_number);
 
-        if(magic_number != 2049) throw runtime_error("Invalid MNIST label file!");
+        if (magic_number != 2049) throw runtime_error("Invalid MNIST label file!");
 
-        file.read((char *)&number_of_labels, sizeof(number_of_labels)), number_of_labels = reverseInt(number_of_labels);
+        file.read((char*)&number_of_labels, sizeof(number_of_labels)), number_of_labels = reverseInt(number_of_labels);
 
         uchar* _dataset = new uchar[number_of_labels];
-        for(int i = 0; i < number_of_labels; i++) {
+        for (int i = 0; i < number_of_labels; i++) {
             file.read((char*)&_dataset[i], 1);
         }
         return _dataset;
-    } else {
+    }
+    else {
         throw runtime_error("Unable to open file `" + full_path + "`!");
     }
 }
@@ -73,8 +77,30 @@ void printImg(ostream& out, unsigned char** images, const int imgSize, const int
 
     for (size_t i = 0; i < imgHeightWidth; i++) {
         for (size_t j = 0; j < imgHeightWidth; j++) {
-            out << setfill(' ') << setw(3) << (int) images[imgNum][i*imgHeightWidth + j];
+            out << setfill(' ') << setw(3) << (int)images[imgNum][i * imgHeightWidth + j];
         }
         out << endl;
     }
+}
+
+vector<vector<float>> charArrImgsToVectors(unsigned char** imgs, const int imgSize, const int fromImgIdx, const int toImgNum) {
+    vector<vector<float>> out;
+    for (size_t i = fromImgIdx; i <= toImgNum; i++) {
+        vector<float> vectorizedImg(imgSize);
+        for (size_t j = 0; j < imgSize; j++) {
+            vectorizedImg[j] = (float)imgs[i][j] / 255.0;
+        }
+        out.push_back(vectorizedImg);
+    }
+    return out;
+}
+
+vector<vector<float>> charArrLabelsToVectors(unsigned char* labels, const int fromLabelIdx, const int toLabelIdx) {
+    vector<vector<float>> out;
+    for (size_t i = fromLabelIdx; i <= toLabelIdx; i++) {
+        vector<float> intermediateOutVec(10, 0);
+        intermediateOutVec[(int)labels[i]] = 1;
+        out.push_back(intermediateOutVec);
+    }
+    return out;
 }

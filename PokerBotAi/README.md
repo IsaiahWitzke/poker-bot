@@ -213,3 +213,7 @@ For the batch size = 10, this is the model's trained weights and biases:
 ```
 
 It seems like it found an optimal set of weights and biases that resemble the "Option 2" prediction I made earlier today.
+
+### Another attempt at MNIST...
+
+training over 10000 labeled images... we get inaccuracy of 100%. Im going to bed
