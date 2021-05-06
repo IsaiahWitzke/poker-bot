@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include "Math/VectorUtils.h"
 
 #include "testing.h"
 
@@ -31,22 +32,22 @@ int main()
     // }
 
     // return 0;
-
-    vector<int> neuronsInLayer = { 2, 1 };
-    NeuralNet nn1(neuronsInLayer);
-    nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
-
-    nn1.train(trainingInputs, trainingExpectedOutputs, 10);
-
-    nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
-
-    // vector<float> in = {0.1, 0.2, 0.3, 0.4};
-
-    // nn.calcIntermediateValues(in);
-
-    // for(int i = 0; i < 20; i++) {
-    //     nn.makeTrainingStep(1);
-    //     nn.calcIntermediateValues(in);
-    // }
+    
+    vector<int> neuronsInLayer = { 2, 2, 1 };
+    NeuralNet nn2(neuronsInLayer);
+    nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
+    vector<float> errors;
+    for (size_t batchSize = 1; batchSize < 11; batchSize++) {
+        NeuralNet nn1("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
+        nn1.train(trainingInputs, trainingExpectedOutputs, batchSize, 0.5);
+        float inaccuracy = nn1.test(testingInputs, testingExpectedOutputs);
+        cout << inaccuracy << endl;
+        errors.push_back(inaccuracy);
+        nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
+    }
+    cout << endl << endl << endl;
+    for(auto err : errors) {
+        cout << err << endl;
+    }
     return 0;
 }

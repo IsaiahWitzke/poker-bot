@@ -44,3 +44,13 @@ void randomizeElem(T &e);
 
 template<typename T>
 void randomizeVector(vector<T>& v);
+
+/**
+ * @brief Euclidian size of vector
+ * 
+ * @tparam T 
+ * @param v 
+ * @return T 
+ */
+template<typename T>
+T norm(const vector<T>& v);

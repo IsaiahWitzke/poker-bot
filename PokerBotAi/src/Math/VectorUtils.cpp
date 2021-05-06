@@ -1,5 +1,6 @@
 #include "VectorUtils.h"
 #include <stdlib.h>
+#include <math.h>
 
 template<typename T>
 vector<T> operator+(vector<T> a, vector<T> b) {
@@ -44,8 +45,8 @@ void randomizeElem(T &e) {
     if (std::is_same<T, int>::value) {
         e = rand();
     }
-    else {  // return a rand number between [-1, 1]
-        e = 2 * (static_cast<T>(rand()) / static_cast<T>(RAND_MAX)) - 1;
+    else {  // return a rand number between [0, 1]
+        e = (static_cast<T>(rand()) / static_cast<T>(RAND_MAX));
     }
 }
 
@@ -65,6 +66,15 @@ vector<T> elementWiseProduct(const vector<T>& a, const vector<T>& b) {
     return out;
 }
 
+template<typename T>
+T norm(const vector<T>& v) {
+    T intermediateSum = 0;
+    for(auto e : v) {
+        intermediateSum += (e * e);
+    }
+    return sqrt(intermediateSum);
+}
+
 // template <typename T>
 // Matrix<T> elementWiseProduct(const Matrix<T>& a, const vector<T>& b) {
 //     Matrix<T> out(a);
@@ -75,6 +85,8 @@ vector<T> elementWiseProduct(const vector<T>& a, const vector<T>& b) {
 // }
 
 // add more templates here (if needed)....
+template float norm(const vector<float>& v);
+
 template vector<float> elementWiseProduct(const vector<float>& a, const vector<float>& b);
 // template Matrix<float> elementWiseProduct(const Matrix<float>& a, const vector<float>& b);
 

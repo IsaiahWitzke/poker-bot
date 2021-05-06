@@ -32,6 +32,8 @@ public:
     vector<T> operator*(const vector<T>& v);        // matrix * vector multiplication
     vector<T> operator()(const vector<T>& v);       // same as matrix * vector multiplication
     Matrix<T> operator*(const T s);                 // scalar * matrix multiplication
+    void operator+=(Matrix<T>& m);
+    void operator-=(Matrix<T>& m);
 
     void addRow(vector<T> row);
 

@@ -83,18 +83,32 @@ public:
     /**
      * @brief Given a set of inputs and expected outputs, will train the network
      *
-     * @param trainingSet
+     * @param trainingInputs
      * @param trainingExpectedOuts
      * @param batchSize
+     * @param stepSize
      */
     void train(
-        const vector<vector<float>>& trainingSet,
+        const vector<vector<float>>& trainingInputs,
         const vector<vector<float>>& trainingExpectedOuts,
         const int batchSize = 100,
         const float stepSize = 1.0
     );
 
-
+    /**
+     * @brief Returns the accuracy of the model when tested against a set of testing data.
+     * 
+     * Calculates error with "Mean absolute percentage error" (MAPE).
+     * See: https://en.wikipedia.org/wiki/Mean_absolute_percentage_error
+     * 
+     * @param testingInputs 
+     * @param trainingExpectedOuts 
+     * @return float 
+     */
+    float test(
+        const vector<vector<float>>& testingInputs,
+        const vector<vector<float>>& trainingExpectedOuts
+    );
 
     /**
      * @brief Outputs the data in the neural network in a json format that can be parsed back in again for future use

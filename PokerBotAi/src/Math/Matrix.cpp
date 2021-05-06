@@ -119,6 +119,24 @@ vector<T> Matrix<T>::operator*(const vector<T>& v) {
 }
 
 template <typename T>
+void Matrix<T>::operator+=(Matrix<T>& m) {
+    for (size_t row = 0; row < this->numRows; ++row) {
+        for (size_t col = 0; col < this->numCols; ++col) {
+            this->m[row][col] += m[row][col];
+        }
+    }
+}
+
+template <typename T>
+void Matrix<T>::operator-=(Matrix<T>& m) {
+    for (size_t row = 0; row < this->numRows; ++row) {
+        for (size_t col = 0; col < this->numCols; ++col) {
+            this->m[row][col] -= m[row][col];
+        }
+    }
+}
+
+template <typename T>
 vector<T> Matrix<T>::operator()(const vector<T>& v) {
     return this->operator*(v);  // does this use an extra copy...????
 }

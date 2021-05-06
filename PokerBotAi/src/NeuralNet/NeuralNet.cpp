@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <stdlib.h>
 
 void getLayerDataFromJsonStr(
     const string& jsonStr,
@@ -97,6 +98,7 @@ NeuralNet::NeuralNet(vector<int> neuronsInLayer, float scalarFuncsCompressFactor
 
     // initialize all weights and biases to random values
     for (size_t i = 0; i < layers - 1; i++) {
+        srand(1);
         Matrix<float> weights(neuronsInLayer[i + 1], neuronsInLayer[i], 0.0);     // each row reps all the links from input neuron to next neurons
         weights.randomize();
         this->weights.push_back(weights);
@@ -107,17 +109,8 @@ NeuralNet::NeuralNet(vector<int> neuronsInLayer, float scalarFuncsCompressFactor
 }
 
 vector<float> NeuralNet::operator()(const vector<float>& in) {
-    // NOTE: we dont apply biases or sigmoid to input layer
-
-    vector<float> intermediateData = in;
-    for (size_t i = 0; i < layers - 1; i++) {
-        // next data = weights matrix * input values + biases
-        intermediateData = weights[i](intermediateData) + biases[i];
-        for (size_t j = 0; j < intermediateData.size(); j++) {
-            intermediateData[j] = sigmoid(intermediateData[j]);
-        }
-    }
-    return intermediateData;
+    calcIntermediateValues(in);
+    return data.neuronActivations[layers - 1];
 }
 
 int NeuralNet::getNeuronsInLayer(const int layer) const {
@@ -193,9 +186,9 @@ void NeuralNet::calcGradients(const vector<float>& requestedOutput) {
 
         vector<float> test = data.neuronActivations[layer];
         Matrix<float> previousLayerActivationTranspose(test, true);
-        Matrix<float> deltaCurLayer(deltas[layer]);
+        Matrix<float> deltaCurLayerMatrix(deltas[layer]);
 
-        data.costsWRTWeightsGradient[layer] = deltaCurLayer * previousLayerActivationTranspose;
+        data.costsWRTWeightsGradient[layer] = deltaCurLayerMatrix * previousLayerActivationTranspose;
 
         data.costsWRTBiasesGradient[layer] = deltas[layer];
     }
@@ -207,11 +200,14 @@ void NeuralNet::makeTrainingStep(float stepScalingFactor) {
     vector<Matrix<float>> averageCostsWRTWeightsGradient = data.costsWRTWeightsGradient * 0;
     vector<vector<float>> averageCostsWRTBiasesGradient = data.costsWRTBiasesGradient * 0;
 
-    float weightedAverageFactor = 1.0 / intermediateDataBatch.size();
     for (size_t i = 0; i < intermediateDataBatch.size(); ++i) {
-        averageCostsWRTWeightsGradient = averageCostsWRTWeightsGradient + (intermediateDataBatch[i].costsWRTWeightsGradient * weightedAverageFactor);
-        averageCostsWRTBiasesGradient = averageCostsWRTBiasesGradient + (intermediateDataBatch[i].costsWRTBiasesGradient * weightedAverageFactor);
+        averageCostsWRTWeightsGradient = averageCostsWRTWeightsGradient + intermediateDataBatch[i].costsWRTWeightsGradient;
+        averageCostsWRTBiasesGradient = averageCostsWRTBiasesGradient + intermediateDataBatch[i].costsWRTBiasesGradient;
     }
+
+    float weightedAverageFactor = 1.0 / intermediateDataBatch.size();
+    averageCostsWRTWeightsGradient = averageCostsWRTWeightsGradient * weightedAverageFactor;
+    averageCostsWRTBiasesGradient = averageCostsWRTBiasesGradient * weightedAverageFactor;
 
     // nudge in direction of negative gradient:
     this->weights = weights + (averageCostsWRTWeightsGradient * -1.0 * stepScalingFactor);
@@ -245,10 +241,12 @@ void NeuralNet::train(
 ) {
     vector<vector<float>> inputsBatch;
     vector<vector<float>> expectedOutputsBatch;
-    cout << "training..." << endl;
-    for (int i = 0; i < trainingSetInputs.size(); ++i) {
-        if ((i % batchsize == 0 && i != 0) || i == trainingSetInputs.size() - 1) {
-            cout << "On set entry " << i << " of " << trainingSetInputs.size() << endl;
+    const size_t trainingSetSize = trainingSetInputs.size();
+
+    cout << "training... training set size = " << trainingSetSize << ", batch size = " << batchsize << ", step size = " << stepSize << endl;
+    for (int i = 0; i < trainingSetSize; ++i) {
+        if ((i % batchsize == 0 && i != 0) || i == trainingSetSize - 1) {
+            // cout << "On set entry " << i << " of " << trainingSetSize << endl;
             calcIntermediateBatchData(inputsBatch, expectedOutputsBatch);
             makeTrainingStep(stepSize);
             inputsBatch.clear();
@@ -258,6 +256,19 @@ void NeuralNet::train(
         expectedOutputsBatch.push_back(trainingSetExpectedOuts[i]);
 
     }
+}
+
+float NeuralNet::test(
+    const vector<vector<float>>& testingInputs,
+    const vector<vector<float>>& trainingExpectedOuts
+) {
+    float intermediateMAPE = 0.0;
+    for (size_t i = 0; i < testingInputs.size(); i++) {
+        vector<float> actualOut = (*this)(testingInputs[i]);    // apply the neural net to the testing input using the overloaded () operator
+        // error = (actual - expected) / (actual)
+        intermediateMAPE += abs(norm(actualOut - trainingExpectedOuts[i]) / norm(actualOut));
+    }
+    return intermediateMAPE / testingInputs.size();
 }
 
 ostream& operator << (ostream& out, const NeuralNet& nn) {
