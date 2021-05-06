@@ -42,7 +42,7 @@ Trying with a training set of data with 500 entries with batch size of 10 again 
 
 ## 2021-05-04
 
-Refactoring code to be consistent with Stanford's course notes. This means rewriting everything in "vectorized" notation (now taking partial derivatives of matrices and vectors instead of looping thru the vectors and doing the individual derivatives). Most of this just means overloading arithmetic operators so I can multiply matricies and vectors together properly. These changes shouldn't actually make any difference to the functionality of the neural net, I simply just find it hard to keep track of whats going on by the 3rd or 4th nested for-loop. Also, by switching over to "vectorized" notation allows me to write code that more closely resembles conventional neural network mathematical representation & notation.
+Refactoring code to be consistent with Stanford's course notes. This means rewriting everything in "vectorized" notation (now taking partial derivatives of matrices and vectors instead of looping thru the vectors and doing the individual derivatives). Most of this just means overloading arithmetic operators so I can multiply matrices and vectors together properly. These changes shouldn't actually make any difference to the functionality of the neural net, I simply just find it hard to keep track of whats going on by the 3rd or 4th nested for-loop. Also, by switching over to "vectorized" notation allows me to write code that more closely resembles conventional neural network mathematical representation & notation.
 
 ## 2021-05-05
 
