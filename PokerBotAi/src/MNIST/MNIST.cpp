@@ -59,7 +59,8 @@ unsigned char* read_mnist_labels(string full_path, int& number_of_labels) {
 
         if (magic_number != 2049) throw runtime_error("Invalid MNIST label file!");
 
-        file.read((char*)&number_of_labels, sizeof(number_of_labels)), number_of_labels = reverseInt(number_of_labels);
+        file.read((char*)&number_of_labels, sizeof(number_of_labels));
+		number_of_labels = reverseInt(number_of_labels);
 
         uchar* _dataset = new uchar[number_of_labels];
         for (int i = 0; i < number_of_labels; i++) {

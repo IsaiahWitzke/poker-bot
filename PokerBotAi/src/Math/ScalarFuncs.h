@@ -6,6 +6,8 @@ using namespace std;
 
 float sigmoid(float z);
 
+vector<float> sigmoid(vector<float> z);
+
 vector<float> relu(const vector<float>& z, float reluCompressFactor = 1.0);
 
 float relu(float z, float reluCompressFactor = 1.0);
@@ -16,6 +18,8 @@ float dzWRTdw(float a);
 
 float dzWRTda_previous(float w);
 float daWRTdz_sigmoid(float z);
+
+vector<float> daWRTdz_sigmoid(vector<float> z);
 
 float daWRTdz_relu(float z, float reluCompressFactor = 1.0);
 

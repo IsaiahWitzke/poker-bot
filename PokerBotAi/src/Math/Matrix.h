@@ -39,5 +39,5 @@ public:
 
     Matrix<T> transpose();                          // returns the transposed version of this matrix
 
-    void randomize();
+    void randomize(T maxValue, T minValue = 0);
 };

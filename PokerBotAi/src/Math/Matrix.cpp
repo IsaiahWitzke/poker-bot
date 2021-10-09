@@ -153,14 +153,10 @@ Matrix<T> Matrix<T>::operator*(const T s) {
 }
 
 template <typename T>
-void Matrix<T>::randomize() {
+void Matrix<T>::randomize(T max, T min) {
     for (size_t i = 0; i < numRows; i++) {
-        randomizeVector(m[i]);
+        randomizeVector(m[i], max, min);
     }
-
-    // for (auto& row : m) {
-    //     randomizeVector(row);
-    // }
 }
 
 template <typename T>

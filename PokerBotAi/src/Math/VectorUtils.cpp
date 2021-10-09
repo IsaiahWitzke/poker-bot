@@ -41,17 +41,22 @@ vector<T> operator*(vector<T> a, float b) {
 // }
 
 template <typename T>
-void randomizeElem(T &e) {
+void randomizeElem(T &e, T max, T min) {
     if (std::is_same<T, int>::value) {
-        e = rand();
+        // NOTE: casting to int just to get rid of compile-time errors
+        e = (rand() % (int) (max - min)) - min;  // wont be great if max - min is close to max(int)
     }
-    else {  // return a rand number between [0, 1]
+    else { 
+        // return a rand number between [-1, 1]
+        // e = 2 * (static_cast<T>(rand()) / static_cast<T>(RAND_MAX)) - 1;
+        // return a rand number between [0, 1]
         e = (static_cast<T>(rand()) / static_cast<T>(RAND_MAX));
+        e = e * (max - min) - min;  // scale to min-max range
     }
 }
 
 template<typename T>
-void randomizeVector(vector<T>& v) {
+void randomizeVector(vector<T>& v, T maxValue, T minValue) {
     for (auto& e : v) {
         randomizeElem(e);
     }
@@ -73,6 +78,16 @@ T norm(const vector<T>& v) {
         intermediateSum += (e * e);
     }
     return sqrt(intermediateSum);
+}
+
+template<typename T>
+void addNoiseToVector(vector<T>& v, T noiseAmplitude) {
+    vector<T> noise = vector<T>(v.size());
+    randomizeVector(
+        noise,
+        -noiseAmplitude,
+        noiseAmplitude
+    );
 }
 
 // template <typename T>
@@ -107,10 +122,14 @@ template vector<vector<float>> operator*(vector<vector<float>> a, float b);
 template vector<Matrix<float>> operator*(vector<Matrix<float>> a, float b);
 
 
-template void randomizeElem(int &e);
-template void randomizeElem(float &e);
-template void randomizeElem(double &e);
+template void randomizeElem(int &e, int max, int min);
+template void randomizeElem(float &e, float max, float min);
+template void randomizeElem(double &e, double max, double min);
 
-template void randomizeVector(vector<int>& v);
-template void randomizeVector(vector<float>& v);
-template void randomizeVector(vector<double>& v);
+template void randomizeVector(vector<int>& v, int max, int min);
+template void randomizeVector(vector<float>& v, float max, float min);
+template void randomizeVector(vector<double>& v, double max, double min);
+
+template void addNoiseToVector(vector<int>& v, int noiseAmplitude);
+template void addNoiseToVector(vector<float>& v, float noiseAmplitude);
+template void addNoiseToVector(vector<double>& v, double noiseAmplitude);

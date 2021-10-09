@@ -66,6 +66,14 @@ vector<float> daWRTdz_relu(vector<float> z, float reluCompressfactor) {
     return out;
 }
 
+vector<float> daWRTdz_sigmoid(vector<float> z) {
+    vector<float> out(z);
+    for (size_t i = 0; i < z.size(); i++) {
+        out[i] = daWRTdz_sigmoid(z[i]);
+    }
+    return out;
+}
+
 /*
 
 Cost = sum{over all output neurons} 1/2(outActivation - expectedOutActivation)^2

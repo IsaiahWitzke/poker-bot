@@ -40,10 +40,13 @@ vector<T> elementWiseProduct(const vector<T>& a, const vector<T>& b);
 // Matrix<T> elementWiseProduct(const Matrix<T>& a, const vector<T>& b);
 
 template <typename T>
-void randomizeElem(T &e);
+void randomizeElem(T &e, T maxValue = 1, T minValue = 0);
 
 template<typename T>
-void randomizeVector(vector<T>& v);
+void randomizeVector(vector<T>& v, T maxValue = 1, T minValue = 0);
+
+template<typename T>
+void addNoiseToVector(vector<T>& v, T noiseAmplitude);
 
 /**
  * @brief Euclidian size of vector

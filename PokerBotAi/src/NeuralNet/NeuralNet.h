@@ -17,9 +17,6 @@ struct IntermediateData {
 
 class NeuralNet {
 private:
-    vector<Matrix<float>> weights;
-    vector<vector<float>> biases;
-
     // These are updated and changed thoughout training
     IntermediateData data;
 
@@ -29,6 +26,8 @@ private:
     float scalarFuncsCompressFactor;  // if using relu, then this is the "compression" on it
 
 public:
+    vector<Matrix<float>> weights;
+    vector<vector<float>> biases;
 
     /**
      * @brief Construct a new Neural Net object from an input file
@@ -91,8 +90,10 @@ public:
     void train(
         const vector<vector<float>>& trainingInputs,
         const vector<vector<float>>& trainingExpectedOuts,
-        const int batchSize = 100,
-        const float stepSize = 1.0
+        const int batchSize,
+        const float stepSize,
+        const vector<vector<float>>& testingInputs,
+        const vector<vector<float>>& testingExpectedOutputs
     );
 
     /**
@@ -107,7 +108,7 @@ public:
      */
     float test(
         const vector<vector<float>>& testingInputs,
-        const vector<vector<float>>& trainingExpectedOuts
+        const vector<vector<float>>& testingExpectedOuts
     );
 
     /**

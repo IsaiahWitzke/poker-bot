@@ -217,3 +217,14 @@ It seems like it found an optimal set of weights and biases that resemble the "O
 ### Another attempt at MNIST...
 
 training over 10000 labeled images... we get inaccuracy of 100%. Im going to bed
+
+## 2021-05-06
+
+Going to attempt to train a smaller neural net on adding numbers again - but with a little twist. I want to change the output of the neural net from 1 neuron (whose activation amount represents the sum of the inputs) to 19 different neurons. The 19 different neurons should represent the 19 possible outcomes that one has when adding 2 1-digit numbers together (from 0 + 0 = 0, to 9 + 9 = 18). The input layer will consist of 20 neurons (first 10 representing the first digit, and last 10 neurons representing the last digit to be added). Will have 1 hidden layer consisting of 20 neurons.
+
+Example input might look like in = [0, 0, 1, 0, ..., 0, 1, 0, 0, 0] to represent the digits "2" and "6", and the output should look something like out = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, ...] to represent the digit "8".
+
+
+### Initial Results
+
+Initial results showed that after training on a training set consisting of ~1000 entries, similar inaccuracy was achieved to that of the MNIST results last night (150% to 300% inaccuracy in some cases). After debugging a little bit, it seems like the "overcompensation effect" may be taking place?... after a bit of playing around, no - this is not the issue

@@ -5,6 +5,7 @@
 #include <string>
 #include <regex>
 #include <stdlib.h>
+#include <math.h>
 
 void getLayerDataFromJsonStr(
     const string& jsonStr,
@@ -100,10 +101,10 @@ NeuralNet::NeuralNet(vector<int> neuronsInLayer, float scalarFuncsCompressFactor
     for (size_t i = 0; i < layers - 1; i++) {
         srand(1);
         Matrix<float> weights(neuronsInLayer[i + 1], neuronsInLayer[i], 1.0);     // each row reps all the links from input neuron to next neurons
-        // weights.randomize();
+        weights.randomize(1.0);
         this->weights.push_back(weights);
         vector<float> biases(neuronsInLayer[i + 1], 0.0);
-        randomizeVector(biases);
+        // randomizeVector(biases);
         this->biases.push_back(biases);
     }
 }
@@ -211,7 +212,7 @@ void NeuralNet::makeTrainingStep(float stepScalingFactor) {
 
     // nudge in direction of negative gradient:
     this->weights = weights + (averageCostsWRTWeightsGradient * -1.0 * stepScalingFactor);
-    this->biases = biases + (averageCostsWRTBiasesGradient * -1.0 * stepScalingFactor);
+    this->biases = biases + (averageCostsWRTBiasesGradient * (-1.0 * stepScalingFactor * 0.0));   // testing: nudge biases less than weights
 }
 
 void NeuralNet::calcIntermediateData(
@@ -237,38 +238,47 @@ void NeuralNet::train(
     const vector<vector<float>>& trainingSetInputs,
     const vector<vector<float>>& trainingSetExpectedOuts,
     const int batchsize,
-    const float stepSize
+    const float stepSize,
+    const vector<vector<float>>& testingInputs,
+    const vector<vector<float>>& testingExpectedOutputs
 ) {
     vector<vector<float>> inputsBatch;
     vector<vector<float>> expectedOutputsBatch;
     const size_t trainingSetSize = trainingSetInputs.size();
 
     cout << "training... training set size = " << trainingSetSize << ", batch size = " << batchsize << ", step size = " << stepSize << endl;
-    for (int i = 0; i < trainingSetSize; ++i) {
-        if ((i % batchsize == 0 && i != 0) || i == trainingSetSize - 1) {
-            cout << "On set entry " << i << " of " << trainingSetSize << endl;
+    cout << "Initial inaccuracy: " << test(testingInputs, testingExpectedOutputs) << endl;
+    for (int i = 1; i < trainingSetSize + 1; ++i) {
+        inputsBatch.push_back(trainingSetInputs[i - 1]);
+        expectedOutputsBatch.push_back(trainingSetExpectedOuts[i - 1]);
+        if (i % batchsize == 0 || i == trainingSetSize) {
+            // cout << "On set entry " << i << " of " << trainingSetSize << endl;
             calcIntermediateBatchData(inputsBatch, expectedOutputsBatch);
             makeTrainingStep(stepSize);
             inputsBatch.clear();
             expectedOutputsBatch.clear();
+            // cout << "New inaccuracy: " << test(testingInputs, testingExpectedOutputs) << endl;
+            cout << i << "," << test(testingInputs, testingExpectedOutputs) << endl;
         }
-        inputsBatch.push_back(trainingSetInputs[i]);
-        expectedOutputsBatch.push_back(trainingSetExpectedOuts[i]);
-
     }
 }
 
 float NeuralNet::test(
     const vector<vector<float>>& testingInputs,
-    const vector<vector<float>>& trainingExpectedOuts
+    const vector<vector<float>>& testingExpectedOuts
 ) {
-    float intermediateMAPE = 0.0;
+    float intermediateAveErr = 0.0;
     for (size_t i = 0; i < testingInputs.size(); i++) {
         vector<float> actualOut = (*this)(testingInputs[i]);    // apply the neural net to the testing input using the overloaded () operator
         // error = (actual - expected) / (actual)
-        intermediateMAPE += abs(norm(actualOut - trainingExpectedOuts[i]) / norm(actualOut));
+        float intermediateErrSquare = 0.0;
+        for (size_t j = 0; j < actualOut.size(); j++) {
+            intermediateErrSquare += powf(actualOut[j] - testingExpectedOuts[i][j], 2);
+        }
+        
+        intermediateAveErr += sqrtf(intermediateErrSquare);
     }
-    return intermediateMAPE / testingInputs.size();
+    return intermediateAveErr / testingInputs.size();
 }
 
 ostream& operator << (ostream& out, const NeuralNet& nn) {

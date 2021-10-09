@@ -9,13 +9,71 @@
 #include <string>
 #include <iomanip>
 #include "Math/VectorUtils.h"
+#include "Testing/TestData.h"
+#include <stdlib.h>
 
 #include "testing.h"
 
 using namespace std;
 
-int main()
-{
+void doMnist() {
+    int width = 10;
+
+    vector<vector<float>> trainingInputsNew;
+    vector<vector<float>> trainingExpectedOutputsNew;
+    for(size_t i = 0; i < 20000; i++) {
+        vector<float> trainingIn(width);
+        vector<float> trainingExpectedOut(width);
+        int digit1 = rand() % width;
+        // int digit2 = rand() % 10;
+        trainingIn[i % 10] = 1;
+        // trainingIn[digit2 + 10] = 1;
+        // int sum = digit1 + digit2;
+        trainingExpectedOut[i % 10] = 1;
+        trainingInputsNew.push_back(trainingIn);
+        trainingExpectedOutputsNew.push_back(trainingExpectedOut);
+    }
+
+    vector<vector<float>> testingInputsNew;
+    vector<vector<float>> testingExpectedOutputsNew;
+    for(size_t i = 0; i < 50; i++) {
+        vector<float> testingIn(width);
+        vector<float> testingExpectedOut(width);
+        // int digit1 = (int)(10 * testingInputs[i][0]);
+        // int digit2 = (int)(10 * testingInputs[i][1]);
+        int digit1 = rand() % width;
+        int digit2 = rand() % 10;
+        testingIn[digit1] = 1;
+        // testingIn[digit2 + 10] = 1;
+        // int sum = digit1 + digit2;
+        testingExpectedOut[digit1] = 1;
+        testingInputsNew.push_back(testingIn);
+        testingExpectedOutputsNew.push_back(testingExpectedOut);
+    }
+
+    vector<int> neuronsInLayer = { width, width, width };
+    // NeuralNet nn2("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
+    NeuralNet nn2(neuronsInLayer);
+    nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
+    nn2.train(trainingInputsNew, trainingExpectedOutputsNew, 10, 0.1, testingInputsNew, testingExpectedOutputsNew);
+    nn2.test(testingInputsNew, testingExpectedOutputsNew);
+    Matrix<float> testMatrix = nn2.weights[0] * nn2.weights[1];
+    // float inaccuracy = nn2.test(testingInputsNew, testingExpectedOutputsNew);
+    // cout << inaccuracy << endl;
+    
+    // nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
+    
+    // vector<int> neuronsInLayer = { 2, 2, 2 };
+    // NeuralNet nn2(neuronsInLayer);
+    // nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
+    // nn2.train(trainingInputs, trainingExpectedOutputs, 10, 0.5, testingInputs, testingExpectedOutputs);
+    // float inaccuracy = nn2.test(testingInputs, testingExpectedOutputs);
+    // cout << inaccuracy << endl;
+    
+    nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
+}
+
+void doMnistAttempt1() {
     int numImgs = 0;
     int numLabels = 0;
     int imgSize = 0;
@@ -30,14 +88,12 @@ int main()
     vector<int> neuronsInLayer = { 784, 500, 300, 100, 10 };
 
     NeuralNet nn2(neuronsInLayer);
-    nn2.train(imagesVectorTraining, labelsVectorTraining, 100, 0.1);
+    nn2.train(imagesVectorTraining, labelsVectorTraining, 100, 0.1, imagesVectorTesting, labelsVectorTesting);
     nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
     
 
     float inaccuracy = nn2.test(imagesVectorTesting, labelsVectorTesting);
     cout << "inaccuracy: " << inaccuracy << endl;
-
-    return 0;
 
     // if(numImgs != numLabels) {
     //     cout << "numImgs != numLabels" << endl;
@@ -48,26 +104,28 @@ int main()
     //         printImg(cout, imgs, imgSize, i);
     //     }
     // }
+}
 
+void doLinearRegressionTesting() {
+	TestData testData(10, 5, 100, 5, TestData::LINEAR);
 
-    
-    /*
-    vector<int> neuronsInLayer = { 2, 2, 1 };
+    vector<int> neuronsInLayer = { 10, 7, 5 };
+    // NeuralNet nn2("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout_linear.json");
     NeuralNet nn2(neuronsInLayer);
-    nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
-    vector<float> errors;
-    for (size_t batchSize = 1; batchSize < 11; batchSize++) {
-        NeuralNet nn1("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
-        nn1.train(trainingInputs, trainingExpectedOutputs, batchSize, 0.5);
-        float inaccuracy = nn1.test(testingInputs, testingExpectedOutputs);
-        cout << inaccuracy << endl;
-        errors.push_back(inaccuracy);
-        nn1.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout2.json");
-    }
-    cout << endl << endl << endl;
-    for(auto err : errors) {
-        cout << err << endl;
-    }
+    nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout_linear.json");
+    nn2.train(
+		testData.trainingInputs,
+		testData.trainingExpectedOuts,
+		10,
+		1,
+		testData.testingInputs,
+		testData.testingExpectedOuts
+	);
+    nn2.test(testData.testingInputs, testData.testingExpectedOuts);
+}
+
+int main() {
+	cout << "hello" << endl;
+	doLinearRegressionTesting();
     return 0;
-    */
 }
