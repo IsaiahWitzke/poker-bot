@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define DEBUG_INTERMEDIATE_TRAINING_OUTS
+
 void getLayerDataFromJsonStr(
     const string& jsonStr,
     Matrix<float>& weights,
@@ -149,16 +151,14 @@ void NeuralNet::calcIntermediateValues(const vector<float>& in) {
         // OR....
         // a^[i] = sigmoid(W^[i] a^[i-1] + b^[i]) = sigmoid(z^[i])
         // NOTE: we don't apply the activation function to the final layer
-        if (i != layers - 2) {
+        if (i != layers - 2)
             data.neuronActivations.push_back(
                 relu(data.neuronActivationsPreActivation[i + 1])
             );
-        }
-        else {
+        else
             data.neuronActivations.push_back(
                 data.neuronActivationsPreActivation[i + 1]
             );
-        }
     }
 }
 
@@ -248,6 +248,11 @@ void NeuralNet::train(
 
     cout << "training... training set size = " << trainingSetSize << ", batch size = " << batchsize << ", step size = " << stepSize << endl;
     cout << "Initial inaccuracy: " << test(testingInputs, testingExpectedOutputs) << endl;
+
+#ifdef DEBUG_INTERMEDIATE_TRAINING_OUTS
+    writeToFile("nn-weights-0.json");
+#endif
+
     for (int i = 1; i < trainingSetSize + 1; ++i) {
         inputsBatch.push_back(trainingSetInputs[i - 1]);
         expectedOutputsBatch.push_back(trainingSetExpectedOuts[i - 1]);
@@ -259,6 +264,10 @@ void NeuralNet::train(
             expectedOutputsBatch.clear();
             // cout << "New inaccuracy: " << test(testingInputs, testingExpectedOutputs) << endl;
             cout << i << "," << test(testingInputs, testingExpectedOutputs) << endl;
+
+#ifdef DEBUG_INTERMEDIATE_TRAINING_OUTS
+            writeToFile("nn-weights-" + to_string(i) + ".json");
+#endif
         }
     }
 }
@@ -275,7 +284,7 @@ float NeuralNet::test(
         for (size_t j = 0; j < actualOut.size(); j++) {
             intermediateErrSquare += powf(actualOut[j] - testingExpectedOuts[i][j], 2);
         }
-        
+
         intermediateAveErr += sqrtf(intermediateErrSquare);
     }
     return intermediateAveErr / testingInputs.size();
@@ -303,28 +312,10 @@ ostream& operator << (ostream& out, const NeuralNet& nn) {
 
         // dealing with weights
         out << "        \"weights\" : " << endl;
-        out << "        [" << endl;
         Matrix<float> weights = nn.weights[layer];
-        for (size_t rowIdx = 0; rowIdx < weights.numRows; rowIdx++) {
-            out << "            [";
-            for (size_t colIdx = 0; colIdx < weights.numCols; colIdx++) {
-                out << weights[rowIdx][colIdx];
-                if (colIdx != weights.numCols - 1) {
-                    out << ", ";
-                }
-            }
-            out << "]";
-            if (rowIdx != weights.numRows - 1) {
-                out << "," << endl;
-            }
-            else {
-                out << endl;
-            }
-        }
-        out << "        ]," << endl;
+        out << weights.toString(8) + "," << endl;
 
         // dealing with biases
-
         out << "        \"biases\" : [";
         vector<float> biases = nn.biases[layer];
         for (size_t i = 0; i < biases.size(); i++) {

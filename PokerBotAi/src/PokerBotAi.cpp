@@ -107,25 +107,25 @@ void doMnistAttempt1() {
 }
 
 void doLinearRegressionTesting() {
-	TestData testData(10, 5, 100, 5, TestData::LINEAR);
+	TestData testData(2, 1, 100, 5, TestData::LINEAR);
 
-    vector<int> neuronsInLayer = { 10, 7, 5 };
+    vector<int> neuronsInLayer = { 2, 1 };
     // NeuralNet nn2("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout_linear.json");
     NeuralNet nn2(neuronsInLayer);
-    nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout_linear.json");
+    nn2.writeToFile("data/linear-before-training.json");
     nn2.train(
 		testData.trainingInputs,
 		testData.trainingExpectedOuts,
 		10,
-		1,
+		0.001,
 		testData.testingInputs,
 		testData.testingExpectedOuts
 	);
+    nn2.writeToFile("linear-after-training.json");
     nn2.test(testData.testingInputs, testData.testingExpectedOuts);
 }
 
 int main() {
-	cout << "hello" << endl;
 	doLinearRegressionTesting();
     return 0;
 }

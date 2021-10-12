@@ -175,8 +175,44 @@ Matrix<T> Matrix<T>::transpose() {
     return out;
 }
 
+template <typename T>
+string Matrix<T>::toString(int indentSpaces) const {
+    string out = "";
+    string indent = string(indentSpaces, ' ');
+    out += indent + "[\n";
+
+    // for each row...
+    for (size_t rowIdx = 0; rowIdx < numRows; rowIdx++) {
+        out += indent + "    [";
+        // for each column...
+        for (size_t colIdx = 0; colIdx < numCols; colIdx++) {
+            out += to_string(m[rowIdx][colIdx]);
+            if (colIdx != numCols - 1)
+                out += ", ";
+        }
+        out += "]";
+
+        if (rowIdx != numRows - 1)
+            out += ",";
+
+        out += "\n";
+    }
+    out += indent + "]";
+	return out;
+}
+
+template <typename T>
+ostream& operator << (ostream& out, const Matrix<T>& nn) {
+    out << nn.toString(0);
+    return out;
+}
+
 // see https://stackoverflow.com/questions/8752837/undefined-reference-to-template-class-constructor
 
 template class Matrix<int>;
 template class Matrix<float>;
 template class Matrix<double>;
+
+template ostream& operator << (ostream& out, const Matrix<int>& nn);
+template ostream& operator << (ostream& out, const Matrix<float>& nn);
+template ostream& operator << (ostream& out, const Matrix<double>& nn);

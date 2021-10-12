@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -40,4 +41,9 @@ public:
     Matrix<T> transpose();                          // returns the transposed version of this matrix
 
     void randomize(T maxValue, T minValue = 0);
+
+	string toString(int indentSpaces = 0) const;
 };
+
+template <typename T>
+ostream& operator << (ostream& out, const Matrix<T>& nn);

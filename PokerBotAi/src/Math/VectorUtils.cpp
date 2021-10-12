@@ -56,9 +56,9 @@ void randomizeElem(T &e, T max, T min) {
 }
 
 template<typename T>
-void randomizeVector(vector<T>& v, T maxValue, T minValue) {
+void randomizeVector(vector<T>& v, T max, T min) {
     for (auto& e : v) {
-        randomizeElem(e);
+        randomizeElem(e, max, min);
     }
 }
 
