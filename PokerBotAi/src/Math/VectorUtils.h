@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include "Matrix.h"
 
 using namespace std;
@@ -47,6 +48,17 @@ void randomizeVector(vector<T>& v, T maxValue = 1, T minValue = 0);
 
 template<typename T>
 void addNoiseToVector(vector<T>& v, T noiseAmplitude);
+
+// can't really template these because compiler does weird stuff at linking...
+// https://stackoverflow.com/questions/614233/undefined-reference-to-function-template-when-used-with-string-gcc
+// solution: make over-written wrapper functions for the actual templated functions (see the .cpp)
+string vec2str(const vector<int>& v, int indentSpaces = 0);
+string vec2str(const vector<float>& v, int indentSpaces = 0);
+string vec2str(const vector<double>& v, int indentSpaces = 0);
+
+string vec2str(const vector<vector<int>>& v, int indentSpaces = 0);
+string vec2str(const vector<vector<float>>& v, int indentSpaces = 0);
+string vec2str(const vector<vector<double>>& v, int indentSpaces = 0);
 
 /**
  * @brief Euclidian size of vector

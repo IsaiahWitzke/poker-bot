@@ -1,3 +1,4 @@
+#include <string>
 #include "TestData.h"
 #include "../Math/VectorUtils.h"
 
@@ -52,3 +53,63 @@ TestData::TestData(
 }
 
 TestData::~TestData() {}
+
+/**
+ * @brief Python-like int-string multiplication
+ * 
+ * @param factor 
+ * @param str 
+ * @return string 
+ */
+string operator*(unsigned int factor, const string &str) {
+	string out = "";
+	for (size_t i = 0; i < factor; i++) {
+		out += str;
+	}
+	return str;
+}
+
+// idk why this isn't already a thing
+string operator+(string a, const char b[]) {
+	return a + string(b);
+}
+
+string operator+(const char b[], string a) {
+	return string(a) + b;
+}
+
+string TestData::toString(int tabSpaces) const {
+	const string indent = string(4, ' ');
+	string out = "";
+	out += "{\n";
+	out += indent + "\"generating-operation\" : \n" + this->generatingOperation.toString(4) + ",\n";
+	out += indent + "\"training\" :\n";
+	out += indent + "[\n";
+	for (size_t i = 0; i < trainingInputs.size(); i++) {
+		out += 2 * indent + "{\n";
+		out += 3 * indent + "\"in\" : \n" + vec2str(trainingInputs[i], 12) + ",\n";
+		out += 3 * indent + "\"out\" : \n" + vec2str(trainingExpectedOuts[i], 12);
+		out += 2 * indent + "}";
+		if (i != trainingExpectedOuts.size() - 1) {
+			out += ",";
+		}
+		out += "\n";
+	}
+	
+	out += indent + "],\n";
+	out += indent + "\"testing\" :\n";
+	out += indent + "[\n";
+	for (size_t i = 0; i < trainingInputs.size(); i++) {
+		out += 2 * indent + "{\n";
+		out += 3 * indent + "\"in\" : \n" + vec2str(testingInputs[i], 12) + ",\n";
+		out += 3 * indent + "\"out\" : \n" + vec2str(testingExpectedOuts[i], 12);
+		out += 2 * indent + "}";
+		if (i != trainingExpectedOuts.size() - 1) {
+			out += ",";
+		}
+		out += "\n";
+	}
+	out += indent + "]\n";
+	out += "}";
+	return out;
+}

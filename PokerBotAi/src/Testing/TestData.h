@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "../Math/Matrix.h"
+#include "../Output/Printable.h"
 
 using namespace std;
 
@@ -11,7 +12,7 @@ using namespace std;
  * 
  * TODO: make me a templated class
  */
-class TestData {
+class TestData : public Printable {
 public:
     enum DataSetType {
         LINEAR,
@@ -36,6 +37,8 @@ public:
         float noiseAmplitude = 0.0
     );
     ~TestData();
+
+	string toString(int tabSpaces = 0) const;
 
 private:
     void generateDataFor(

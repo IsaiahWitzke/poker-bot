@@ -1,3 +1,4 @@
+#include "../Constants.h"
 #include "NeuralNet.h"
 #include "../Math/VectorUtils.h"
 #include <fstream>
@@ -250,7 +251,7 @@ void NeuralNet::train(
     cout << "Initial inaccuracy: " << test(testingInputs, testingExpectedOutputs) << endl;
 
 #ifdef DEBUG_INTERMEDIATE_TRAINING_OUTS
-    writeToFile("nn-weights-0.json");
+    writeToFile(DEBUG_DATA_PATH + string("nn-weights-begin.json"));
 #endif
 
     for (int i = 1; i < trainingSetSize + 1; ++i) {
@@ -266,7 +267,7 @@ void NeuralNet::train(
             cout << i << "," << test(testingInputs, testingExpectedOutputs) << endl;
 
 #ifdef DEBUG_INTERMEDIATE_TRAINING_OUTS
-            writeToFile("nn-weights-" + to_string(i) + ".json");
+            writeToFile(DEBUG_DATA_PATH + string("nn-weights-") + to_string(i) + ".json");
 #endif
         }
     }
@@ -290,63 +291,53 @@ float NeuralNet::test(
     return intermediateAveErr / testingInputs.size();
 }
 
-ostream& operator << (ostream& out, const NeuralNet& nn) {
-    out << "{\n";
-    out << "    \"layers\" : " << nn.layers << "," << endl;
-    out << "    \"scalarFuncsCompressFactor\" : " << nn.scalarFuncsCompressFactor << "," << endl;
+string NeuralNet::toString(int tabSpaces) const {
+	string out = "";
+    out += "{\n";
+    out += "    \"layers\" : " + to_string(layers) + ",\n";
+    out += "    \"scalarFuncsCompressFactor\" : " + to_string(scalarFuncsCompressFactor) + ",\n";
     // for each layer
-    for (int layer = 0; layer < nn.layers; ++layer) {
-        out << "    \"layer_" << layer << "\" : {" << endl;
-        out << "        \"layer\" : " << layer << "," << endl;
-        out << "        \"neurons\" : " << nn.getNeuronsInLayer(layer);
+    for (int layer = 0; layer < layers; ++layer) {
+        out += "    \"layer_" + to_string(layer) + "\" : {\n";
+        out += "        \"layer\" : " + to_string(layer) + ",\n";
+        out += "        \"neurons\" : " + to_string(getNeuronsInLayer(layer));
 
         // dealing with final layer... no weights/biases should really be stored here
-        if (layer == nn.layers - 1) {
-
-            out << endl << "    }" << endl;
+        if (layer == layers - 1) {
+            out += "\n    }\n";
             break;
         }
         else {
-            out << "," << endl;
+            out += ",\n";
         }
 
         // dealing with weights
-        out << "        \"weights\" : " << endl;
-        Matrix<float> weights = nn.weights[layer];
-        out << weights.toString(8) + "," << endl;
+        out += "        \"weights\" : \n";
+        Matrix<float> weights = this->weights[layer];
+        out += weights.toString(8) + ",\n";
 
         // dealing with biases
-        out << "        \"biases\" : [";
-        vector<float> biases = nn.biases[layer];
+        out += "        \"biases\" : [";
+        const vector<float> biases = this->biases[layer];
         for (size_t i = 0; i < biases.size(); i++) {
-            out << biases[i];
+            out += to_string(biases[i]);
             if (i != biases.size() - 1) {
-                out << ", ";
+                out += ", ";
             }
         }
-        out << "]" << endl;
+        out += "]\n";
 
-        out << "    }";
+        out += "    }";
 
-        if (layer != nn.layers - 1) {
-            out << "," << endl;
+        if (layer != layers - 1) {
+            out += ",\n";
         }
         else {
-            out << endl;
+            out += "\n";
         }
     }
-    out << "}";
+    out += "}";
     return out;
 }
 
-void NeuralNet::writeToFile(const string& pathToFile) {
-    ofstream outFile(pathToFile);
-    if (outFile.is_open()) {
-        outFile << *this;
-        outFile.close();
-    }
-    else {
-        cout << "Unable to open file";
-    }
-}
 

@@ -2,6 +2,7 @@
 
 #include "../Math/ScalarFuncs.h"
 #include "../Math/Matrix.h"
+#include "../Output/Printable.h"
 #include <vector>
 #include <iostream>
 
@@ -15,7 +16,7 @@ struct IntermediateData {
     vector<vector<float>> costsWRTBiasesGradient;
 };
 
-class NeuralNet {
+class NeuralNet : public Printable {
 private:
     // These are updated and changed thoughout training
     IntermediateData data;
@@ -111,17 +112,5 @@ public:
         const vector<vector<float>>& testingExpectedOuts
     );
 
-    /**
-     * @brief Outputs the data in the neural network in a json format that can be parsed back in again for future use
-     */
-    void writeToFile(const string& pathToFile);
-
-    /**
-     * @brief Outputs the data in the neural network in a json format that can be parsed back in again for future use
-     *
-     * @param out output stream to file
-     * @param nn neural network
-     * @return ostream&
-     */
-    friend ostream& operator << (ostream& out, const NeuralNet& nn);
+	string toString(int tabSpaces = 0) const;
 };

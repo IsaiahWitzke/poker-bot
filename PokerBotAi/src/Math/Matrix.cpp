@@ -177,6 +177,8 @@ Matrix<T> Matrix<T>::transpose() {
 
 template <typename T>
 string Matrix<T>::toString(int indentSpaces) const {
+	return vec2str(m, indentSpaces);
+	/*
     string out = "";
     string indent = string(indentSpaces, ' ');
     out += indent + "[\n";
@@ -199,12 +201,7 @@ string Matrix<T>::toString(int indentSpaces) const {
     }
     out += indent + "]";
 	return out;
-}
-
-template <typename T>
-ostream& operator << (ostream& out, const Matrix<T>& nn) {
-    out << nn.toString(0);
-    return out;
+	*/
 }
 
 // see https://stackoverflow.com/questions/8752837/undefined-reference-to-template-class-constructor
@@ -212,7 +209,3 @@ ostream& operator << (ostream& out, const Matrix<T>& nn) {
 template class Matrix<int>;
 template class Matrix<float>;
 template class Matrix<double>;
-
-template ostream& operator << (ostream& out, const Matrix<int>& nn);
-template ostream& operator << (ostream& out, const Matrix<float>& nn);
-template ostream& operator << (ostream& out, const Matrix<double>& nn);

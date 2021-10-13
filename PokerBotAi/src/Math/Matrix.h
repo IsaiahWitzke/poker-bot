@@ -3,11 +3,12 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include "../Output/Printable.h"
 
 using namespace std;
 
 template <typename T>
-class Matrix {
+class Matrix : public Printable {
 private:
     // m acts as a wrapped version of a matrix
     // m[i][j]: ith row, jth col
@@ -44,6 +45,3 @@ public:
 
 	string toString(int indentSpaces = 0) const;
 };
-
-template <typename T>
-ostream& operator << (ostream& out, const Matrix<T>& nn);

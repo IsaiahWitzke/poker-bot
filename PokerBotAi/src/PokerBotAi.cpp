@@ -1,6 +1,7 @@
 ﻿// PokerBotAi.cpp : Defines the entry point for the application.
 //
 
+#include "Constants.h"
 #include <iostream>
 #include "Math/Matrix.h"
 #include "NeuralNet/NeuralNet.h"
@@ -11,8 +12,6 @@
 #include "Math/VectorUtils.h"
 #include "Testing/TestData.h"
 #include <stdlib.h>
-
-#include "testing.h"
 
 using namespace std;
 
@@ -108,20 +107,21 @@ void doMnistAttempt1() {
 
 void doLinearRegressionTesting() {
 	TestData testData(2, 1, 100, 5, TestData::LINEAR);
+	testData.generatingOperation.writeToFile(DEBUG_DATA_PATH + string("generating-operation.json"));
 
     vector<int> neuronsInLayer = { 2, 1 };
     // NeuralNet nn2("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout_linear.json");
     NeuralNet nn2(neuronsInLayer);
-    nn2.writeToFile("data/linear-before-training.json");
+    nn2.writeToFile(DEBUG_DATA_PATH + string("linear-before-training.json"));
     nn2.train(
 		testData.trainingInputs,
 		testData.trainingExpectedOuts,
-		10,
-		0.001,
+		5,
+		0.1,
 		testData.testingInputs,
 		testData.testingExpectedOuts
 	);
-    nn2.writeToFile("linear-after-training.json");
+    nn2.writeToFile(DEBUG_DATA_PATH + string("linear-after-training.json"));
     nn2.test(testData.testingInputs, testData.testingExpectedOuts);
 }
 
