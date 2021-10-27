@@ -66,7 +66,7 @@ string operator*(unsigned int factor, const string &str) {
 	for (size_t i = 0; i < factor; i++) {
 		out += str;
 	}
-	return str;
+	return out;
 }
 
 // idk why this isn't already a thing
@@ -87,8 +87,8 @@ string TestData::toString(int tabSpaces) const {
 	out += indent + "[\n";
 	for (size_t i = 0; i < trainingInputs.size(); i++) {
 		out += 2 * indent + "{\n";
-		out += 3 * indent + "\"in\" : \n" + vec2str(trainingInputs[i], 12) + ",\n";
-		out += 3 * indent + "\"out\" : \n" + vec2str(trainingExpectedOuts[i], 12);
+		out += 3 * indent + "\"in\" : " + vec2str(trainingInputs[i], 12) + ",\n";
+		out += 3 * indent + "\"out\" : " + vec2str(trainingExpectedOuts[i], 12) + "\n";
 		out += 2 * indent + "}";
 		if (i != trainingExpectedOuts.size() - 1) {
 			out += ",";
@@ -99,12 +99,12 @@ string TestData::toString(int tabSpaces) const {
 	out += indent + "],\n";
 	out += indent + "\"testing\" :\n";
 	out += indent + "[\n";
-	for (size_t i = 0; i < trainingInputs.size(); i++) {
+	for (size_t i = 0; i < testingInputs.size(); i++) {
 		out += 2 * indent + "{\n";
-		out += 3 * indent + "\"in\" : \n" + vec2str(testingInputs[i], 12) + ",\n";
-		out += 3 * indent + "\"out\" : \n" + vec2str(testingExpectedOuts[i], 12);
+		out += 3 * indent + "\"in\" : " + vec2str(testingInputs[i], 12) + ",\n";
+		out += 3 * indent + "\"out\" : " + vec2str(testingExpectedOuts[i], 12) + "\n";
 		out += 2 * indent + "}";
-		if (i != trainingExpectedOuts.size() - 1) {
+		if (i != testingInputs.size() - 1) {
 			out += ",";
 		}
 		out += "\n";

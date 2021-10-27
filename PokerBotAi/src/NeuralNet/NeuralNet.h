@@ -25,10 +25,21 @@ private:
 
     int layers;
     float scalarFuncsCompressFactor;  // if using relu, then this is the "compression" on it
-
 public:
     vector<Matrix<float>> weights;
     vector<vector<float>> biases;
+
+	/**
+	 * @brief determine if the training step size is too big... if it is, offer an alternative training step size
+	 * 
+	 */
+	float determineTrainingStepSize(
+		const vector<vector<float>>& trainingSetInputs,
+		const vector<vector<float>>& trainingSetExpectedOuts,
+		const vector<Matrix<float>>& weightsNudges,
+		const vector<vector<float>>& biasesNudges,
+		float curTrainingStepSize
+	);
 
     /**
      * @brief Construct a new Neural Net object from an input file

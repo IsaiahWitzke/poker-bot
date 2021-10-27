@@ -95,8 +95,8 @@ void addNoiseToVector(vector<T>& v, T noiseAmplitude) {
 */
 
 template <typename T>
-string vec2str_dummy(const vector<T>& v, int indentSpaces) {
-	string out = string(indentSpaces, ' ') + "[";
+string vec2str_dummy(const vector<T> v, int indentSpaces) {
+	string out = "[";
 	for (size_t i = 0; i < v.size(); i++) {
 		out += to_string(v[i]);
 		if(i != v.size() - 1) {
@@ -104,21 +104,21 @@ string vec2str_dummy(const vector<T>& v, int indentSpaces) {
 		}
 	}
 	
-	out += string(indentSpaces, ' ') + "]";
+	out += "]";
 	return out;
 }
 
 template <typename T>
-string vec2str_dummy(const vector<vector<T>>& v, int indentSpaces) {
-	string out = string(indentSpaces, ' ') + "[";
+string vec2str_dummy(const vector<vector<T>> v, int indentSpaces) {
+	string out = string(indentSpaces, ' ') + "[\n";
 	for (size_t i = 0; i < v.size(); i++) {
-		out += vec2str(v[i], indentSpaces + 4);
+		out += string(indentSpaces + 4, ' ') + vec2str(v[i], indentSpaces + 4);
 		if(i != v.size() - 1) {
 			out += ",";
 		}
 		out += "\n";
 	}
-	out += "]";
+	out += string(indentSpaces, ' ') + "]";
 	return out;
 }
 
@@ -179,9 +179,9 @@ template void addNoiseToVector(vector<int>& v, int noiseAmplitude);
 template void addNoiseToVector(vector<float>& v, float noiseAmplitude);
 template void addNoiseToVector(vector<double>& v, double noiseAmplitude);
 
-template string vec2str_dummy(const vector<int>& v, int indentSpaces);
-template string vec2str_dummy(const vector<float>& v, int indentSpaces);
-template string vec2str_dummy(const vector<double>& v, int indentSpaces);
-template string vec2str_dummy(const vector<vector<int>>& v, int indentSpaces);
-template string vec2str_dummy(const vector<vector<float>>& v, int indentSpaces);
-template string vec2str_dummy(const vector<vector<double>>& v, int indentSpaces);
+template string vec2str_dummy(const vector<int> v, int indentSpaces);
+template string vec2str_dummy(const vector<float> v, int indentSpaces);
+template string vec2str_dummy(const vector<double> v, int indentSpaces);
+template string vec2str_dummy(const vector<vector<int>> v, int indentSpaces);
+template string vec2str_dummy(const vector<vector<float>> v, int indentSpaces);
+template string vec2str_dummy(const vector<vector<double>> v, int indentSpaces);

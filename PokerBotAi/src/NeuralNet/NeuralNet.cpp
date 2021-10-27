@@ -196,6 +196,46 @@ void NeuralNet::calcGradients(const vector<float>& requestedOutput) {
     }
 }
 
+/**
+ * @brief determine if the training step size is too big... if it is, offer an alternative training step size
+ * 
+ */
+float NeuralNet::determineTrainingStepSize(
+    const vector<vector<float>>& trainingSetInputs,
+    const vector<vector<float>>& trainingSetExpectedOuts,
+	const vector<Matrix<float>>& weightsNudges,
+	const vector<vector<float>>& biasesNudges,
+	float curTrainingStepSize
+) {
+    vector<Matrix<float>> weightsCopy = this->weights;
+    vector<vector<float>> biasesCopy = this->biases;
+	float trainingStepSize = curTrainingStepSize;
+	const int maxItr = 5;
+	int curItr = 0;
+	const float curTestRes = test(trainingSetInputs, trainingSetExpectedOuts);	// reference point
+	float changeInTestRes;
+
+	// would shifting the weights and biases by trainingStepSize amount actually give
+	//   a favourable outcome?
+	weights = weightsCopy + weightsNudges * (-1.0f * trainingStepSize);
+	biases = biasesCopy + biasesNudges * (-1.0f * trainingStepSize);
+	changeInTestRes = test(trainingSetInputs, trainingSetExpectedOuts) - curTestRes;
+
+	// if not, then we attempt to decrease the trainingStepSize
+	while (changeInTestRes > 0 || curItr >= maxItr) {
+		// attempt to decrease the training step size
+		trainingStepSize *= 0.8;	// TODO: fiddle with this
+		weights = weightsCopy + weightsNudges * (-1.0f * trainingStepSize);
+		biases = biasesCopy + biasesNudges * (-1.0f * trainingStepSize);
+		curItr++;
+	}
+
+	// make everything go back to normal
+	weights = weightsCopy;
+	biases = biasesCopy;
+	return trainingStepSize;
+}
+
 void NeuralNet::makeTrainingStep(float stepScalingFactor) {
 
     // first, calculate the average gradients (initialize with the same sizes, just all elements are 0)
@@ -211,9 +251,17 @@ void NeuralNet::makeTrainingStep(float stepScalingFactor) {
     averageCostsWRTWeightsGradient = averageCostsWRTWeightsGradient * weightedAverageFactor;
     averageCostsWRTBiasesGradient = averageCostsWRTBiasesGradient * weightedAverageFactor;
 
+	// stepSize = determineTrainingStepSize(
+		// inputsBatch,
+		// expectedOutputsBatch,
+		// stepSize,
+		// averageCostsWRTWeightsGradient,
+		// averageCostsWRTBiasesGradient
+	// );
+
     // nudge in direction of negative gradient:
     this->weights = weights + (averageCostsWRTWeightsGradient * -1.0 * stepScalingFactor);
-    this->biases = biases + (averageCostsWRTBiasesGradient * (-1.0 * stepScalingFactor * 0.0));   // testing: nudge biases less than weights
+    this->biases = biases + (averageCostsWRTBiasesGradient * -1.0 * stepScalingFactor);
 }
 
 void NeuralNet::calcIntermediateData(
@@ -255,17 +303,18 @@ void NeuralNet::train(
 #endif
 
     for (int i = 1; i < trainingSetSize + 1; ++i) {
+        // builds up the batch
         inputsBatch.push_back(trainingSetInputs[i - 1]);
         expectedOutputsBatch.push_back(trainingSetExpectedOuts[i - 1]);
-        if (i % batchsize == 0 || i == trainingSetSize) {
+        if (i % batchsize == 0 || i == trainingSetSize) {   // only runs foreach "batch"...
             // cout << "On set entry " << i << " of " << trainingSetSize << endl;
+            // TODO: multithreading here
             calcIntermediateBatchData(inputsBatch, expectedOutputsBatch);
             makeTrainingStep(stepSize);
             inputsBatch.clear();
             expectedOutputsBatch.clear();
             // cout << "New inaccuracy: " << test(testingInputs, testingExpectedOutputs) << endl;
             cout << i << "," << test(testingInputs, testingExpectedOutputs) << endl;
-
 #ifdef DEBUG_INTERMEDIATE_TRAINING_OUTS
             writeToFile(DEBUG_DATA_PATH + string("nn-weights-") + to_string(i) + ".json");
 #endif
@@ -292,7 +341,7 @@ float NeuralNet::test(
 }
 
 string NeuralNet::toString(int tabSpaces) const {
-	string out = "";
+    string out = "";
     out += "{\n";
     out += "    \"layers\" : " + to_string(layers) + ",\n";
     out += "    \"scalarFuncsCompressFactor\" : " + to_string(scalarFuncsCompressFactor) + ",\n";

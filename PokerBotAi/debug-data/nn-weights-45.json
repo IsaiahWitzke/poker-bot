@@ -1,17 +1,27 @@
 {
-    "layers" : 2,
+    "layers" : 3,
     "scalarFuncsCompressFactor" : 1.000000,
     "layer_0" : {
         "layer" : 0,
         "neurons" : 2,
         "weights" : 
         [
-            [4725811.500000, 5444910.000000]
+            [1.966359, 1.135695],
+            [1.574148, 1.291872]
         ],
-        "biases" : [0.000000]
+        "biases" : [0.160523, 0.111658]
     },
     "layer_1" : {
         "layer" : 1,
+        "neurons" : 2,
+        "weights" : 
+        [
+            [2.244619, 1.825333]
+        ],
+        "biases" : [0.125766]
+    },
+    "layer_2" : {
+        "layer" : 2,
         "neurons" : 1
     }
 }
