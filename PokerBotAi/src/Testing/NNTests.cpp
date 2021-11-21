@@ -13,22 +13,22 @@
 
 using namespace std;
 void doMnistAttempt1() {
-    int numImgs = 0;
-    int numLabels = 0;
-    int imgSize = 0;
-    unsigned char** imgs = read_mnist_images("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\NNData\\train\\train-images.idx3-ubyte", numImgs, imgSize);
-    unsigned char* labels = read_mnist_labels("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\NNData\\train\\train-labels.idx1-ubyte", numLabels);
-    vector<vector<float>> imagesVectorTraining = charArrImgsToVectors(imgs, imgSize, 0, 10000);
-    vector<vector<float>> labelsVectorTraining = charArrLabelsToVectors(labels, 0, 10000);
+    int numImgs = 10000;
+    int numLabels = numImgs;
+    int imgSize = 28 * 28;
+    unsigned char** imgs = read_mnist_images(MNIST_DATA_PATH + string("train/train-images.idx3-ubyte"), numImgs, imgSize);
+    unsigned char* labels = read_mnist_labels(MNIST_DATA_PATH + string("train/train-labels.idx1-ubyte"), numLabels);
+    vector<vector<float>> imagesVectorTraining = charArrImgsToVectors(imgs, imgSize, 0, numImgs - 50);
+    vector<vector<float>> labelsVectorTraining = charArrLabelsToVectors(labels, 0, numLabels - 50);
 
-    vector<vector<float>> imagesVectorTesting = charArrImgsToVectors(imgs, imgSize, 10001, 10050);
-    vector<vector<float>> labelsVectorTesting = charArrLabelsToVectors(labels, 10001, 10050);
+    vector<vector<float>> imagesVectorTesting = charArrImgsToVectors(imgs, imgSize, numImgs - 50, numImgs - 1);
+    vector<vector<float>> labelsVectorTesting = charArrLabelsToVectors(labels, numLabels - 50, numLabels - 1);
     
-    vector<int> neuronsInLayer = { 784, 500, 300, 100, 10 };
+    vector<int> neuronsInLayer = { imgSize, 32, 10 };
 
     NeuralNet nn2(neuronsInLayer);
     nn2.train(imagesVectorTraining, labelsVectorTraining, 100, 0.1, imagesVectorTesting, labelsVectorTesting);
-    nn2.writeToFile("C:\\Users\\witzk\\OneDrive\\Desktop\\Projects\\poker-bot\\PokerBotAi\\testout1.json");
+    nn2.writeToFile(DEBUG_DATA_PATH + string("mnist-testout1.json"));
     
 
     float inaccuracy = nn2.test(imagesVectorTesting, labelsVectorTesting);
@@ -45,7 +45,8 @@ void doMnistAttempt1() {
     // }
 }
 
-void doMnist() {
+// i think this is just a 1:1 test?
+void doOneToOne() {
     int width = 10;
 
     vector<vector<float>> trainingInputsNew;

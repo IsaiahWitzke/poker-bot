@@ -4,6 +4,6 @@
 #include "Testing/NNTests.h"
 
 int main() {
-	doLinearRegressionTestingMultilayer();
+	doMnistAttempt1();
     return 0;
 }
